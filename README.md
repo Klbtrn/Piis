@@ -1,4 +1,4 @@
-# NAME
+# RubberDuggy
 
 **An intelligent code tutoring environment that helps developers fix their own bugs and learn from them — sustainably.**
 
@@ -6,7 +6,7 @@
 
 ## 🚀 Overview
 
-NAME is an AI-powered learning system for developers that bridges the gap between instant bug fixes and real learning. Instead of simply giving you the solution to broken code, it guides you through the debugging process with gradual hints, then turns your mistakes into personalized coding challenges to strengthen long-term learning.
+RubberDuggy is an AI-powered learning system for developers that bridges the gap between instant bug fixes and real learning. Instead of simply giving you the solution to broken code, it guides you through the debugging process with gradual hints, then turns your mistakes into personalized coding challenges to strengthen long-term learning.
 
 ---
 
