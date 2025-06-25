@@ -9,11 +9,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import Editor from "@/components/Editor";
+import { Link } from "react-router-dom";
 
 // Logos
 import pythonLogo from "/src/assets/python-logo.png";
 import jsLogo from "/src/assets/js-logo.png";
 import duggyLogo from "/src/assets/duggy-logo.png";
+
+import Navbar from "@/components/Navbar";
 
 export default function HomePage() {
   const [language, setLanguage] = useState("python");
@@ -54,20 +57,7 @@ export default function HomePage() {
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900 text-white">
       {/* Navigation */}
-      <nav className="w-full flex items-center justify-between px-8 py-4 border-b border-purple-600">
-        <div className="flex items-center space-x-3">
-          <img src={duggyLogo} alt="DuggyBuggy Logo" className="w-10 h-10" />
-          <span className="text-xl font-bold text-purple-400">DUGGYBUGGY</span>
-        </div>
-        <ul className="flex space-x-6 text-sm font-medium">
-          <li className="hover:text-purple-300 cursor-pointer text-purple-400">
-            HOME
-          </li>
-          <li className="hover:text-purple-300 cursor-pointer">STATISTICS</li>
-          <li className="hover:text-purple-300 cursor-pointer">FLASHCARDS</li>
-          <li className="hover:text-purple-300 cursor-pointer">TRAINING</li>
-        </ul>
-      </nav>
+      <Navbar />
 
       {/* Main Content */}
       <main className="p-6 h-[calc(100vh-80px)] flex gap-6">

@@ -1,13 +1,14 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
+import FlashcardPage from "./pages/FlashcardPage";
 
 export default function App() {
   return (
-    <div className="w-full h-full">
-      <HomePage />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/flashcards" element={<FlashcardPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

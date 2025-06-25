@@ -7,9 +7,12 @@ const flashcardSchema = new mongoose.Schema({
   hintCode: String,
   status: {
     type: String,
-    enum: ["ToDo", "InArbeit", "Done"],
-    default: "ToDo",
+    enum: ["Backlog", "Repeat", "InProgress", "Done"],
+    default: "Backlog",
   },
+  language: String,
+  hintCount: Number,
+  hintsUsed: Number,
   createdAt: {
     type: Date,
     default: Date.now,
