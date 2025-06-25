@@ -1,7 +1,7 @@
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import FlashcardColumn from "@/components/FlashcardColumn";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 function Input({ value, onChange, placeholder, className }) {
   return (
@@ -16,52 +16,21 @@ function Input({ value, onChange, placeholder, className }) {
 
 export default function FlashcardPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [flashcards, setFlashcards] = useState([]);
 
-  const flashcards = {
-    backlog: [
-      {
-        _id: "fc1",
-        prompt: "Indentation",
-        language: "python",
-        hintCount: 0,
-        hintsUsed: 0,
-      },
-    ],
-    repeat: [
-      {
-        _id: "fc2",
-        prompt: "Merge Sort",
-        language: "javascript",
-        hintCount: 2,
-        hintsUsed: 1,
-      },
-    ],
-    inProgress: [
-      {
-        _id: "fc3",
-        prompt: "Null Pointer Exception",
-        language: "c",
-        hintCount: 2,
-        hintsUsed: 2,
-      },
-    ],
-    done: [
-      {
-        _id: "fc4",
-        prompt: "Type Mismatch",
-        language: "haskell",
-        hintCount: 0,
-        hintsUsed: 2,
-      },
-      {
-        _id: "fc5",
-        prompt: "Gradient Descent",
-        language: "python",
-        hintCount: 0,
-        hintsUsed: 2,
-      },
-    ],
-  };
+  useEffect(() => {
+    fetch("http://localhost:5000/api/flashcards")
+      .then((res) => res.json())
+      .then((data) => setFlashcards(data))
+      .catch((err) => console.error("Error fetching flashcards:", err));
+  }, []);
+
+  const filterByStatus = (status) =>
+    flashcards
+      .filter((card) => card.status === status)
+      .filter((card) =>
+        card.prompt.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900 text-white">
@@ -102,13 +71,13 @@ export default function FlashcardPage() {
 
         {/* Flashcard Columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <FlashcardColumn title="Backlog" cards={filterByStatus("Backlog")} />
+          <FlashcardColumn title="Repeat" cards={filterByStatus("Repeat")} />
           <FlashcardColumn
-            title="Backlog (History)"
-            cards={flashcards.backlog}
+            title="InProgress"
+            cards={filterByStatus("InProgress")}
           />
-          <FlashcardColumn title="Repeat" cards={flashcards.repeat} />
-          <FlashcardColumn title="In Progress" cards={flashcards.inProgress} />
-          <FlashcardColumn title="Done" cards={flashcards.done} />
+          <FlashcardColumn title="Done" cards={filterByStatus("Done")} />
         </div>
       </div>
     </div>

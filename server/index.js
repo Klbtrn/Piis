@@ -28,5 +28,5 @@ mongoose
   .catch((err) => console.error("🔴 MongoDB-Verbindungsfehler:", err));
 
 // Importiere die Flashcard-Routen
-const flashcardRoutes = require("./routes/flashcards");
+import flashcardRoutes from "./routes/flashcards.js";
 app.use("/api/flashcards", flashcardRoutes);

@@ -1,0 +1,52 @@
+[
+  {
+    "prompt": "IndentationError in Python",
+    "solution": "def greet():\n    print(\"Hello\")",
+    "hintText": "Check your indentation levels.",
+    "hintCode": "def greet():\nprint(\"Hello\")",
+    "status": "Backlog",
+    "language": "python",
+    "hintCount": 1,
+    "hintsUsed": 0
+  },
+  {
+    "prompt": "Wrong loop condition",
+    "solution": "for (let i = 0; i < 10; i++) { console.log(i); }",
+    "hintText": "Check the loop condition.",
+    "hintCode": "for (let i = 1; i <= 10; i++)",
+    "status": "Repeat",
+    "language": "javascript",
+    "hintCount": 2,
+    "hintsUsed": 1
+  },
+  {
+    "prompt": "Null Pointer Exception",
+    "solution": "if (object != null) { object.doSomething(); }",
+    "hintText": "Check if object is null before using it.",
+    "hintCode": "object.doSomething();",
+    "status": "InProgress",
+    "language": "c",
+    "hintCount": 2,
+    "hintsUsed": 2
+  },
+  {
+    "prompt": "Type Mismatch in Haskell",
+    "solution": "add :: Int -> Int -> Int\nadd x y = x + y",
+    "hintText": "Make sure your types match.",
+    "hintCode": "add x y = x + y",
+    "status": "Done",
+    "language": "haskell",
+    "hintCount": 0,
+    "hintsUsed": 2
+  },
+  {
+    "prompt": "Bug in Gradient Descent",
+    "solution": "theta = theta - alpha * gradient",
+    "hintText": "Check your gradient update rule.",
+    "hintCode": "theta = theta + alpha * gradient",
+    "status": "Done",
+    "language": "python",
+    "hintCount": 1,
+    "hintsUsed": 1
+  }
+]

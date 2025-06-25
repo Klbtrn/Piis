@@ -13,10 +13,14 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Alle Karten abrufen
+// GET /api/flashcards
 router.get("/", async (req, res) => {
-  const cards = await Flashcard.find().sort({ createdAt: -1 });
-  res.json(cards);
+  try {
+    const flashcards = await Flashcard.find();
+    res.json(flashcards);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
