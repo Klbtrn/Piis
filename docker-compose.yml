@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   mongo:
-    image: mongo
+    image: docker.io/library/mongo:latest
     restart: always
     container_name: duggybuggy-mongo
     ports:
