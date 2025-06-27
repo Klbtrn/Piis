@@ -67,5 +67,9 @@ npm run install-all
 
 # 3. App + MongoDB starten
 ```
+# Either using docker
 npm start
+
+# or using podman
+npm run start:podman
 ```
