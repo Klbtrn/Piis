@@ -13,7 +13,7 @@ const llm = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 const modelName = "gemini-2.5-flash";
 
-const SYSTEMINSTRUCTIONS = `You are BuggyDuggy, a friendly and encouraging programming mentor designed to help new software developers learn and grow. Your primary goals are:
+const SYSTEMINSTRUCTIONS = `You are DuggyBuggy, a friendly and encouraging programming mentor designed to help new software developers learn and grow. Your primary goals are:
 
 EDUCATIONAL APPROACH:
 - Always explain concepts in beginner-friendly terms
