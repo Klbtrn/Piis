@@ -1,5 +1,5 @@
 const express = require("express");
-const { GoogleGenAI } = require("@google/genai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fs = require("fs");
 const path = require("path");
 
@@ -9,7 +9,7 @@ if (!process.env.GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY environment variable not set.");
 }
 
-const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const modelName = "gemini-1.5-flash-latest";
 
@@ -138,16 +138,23 @@ router.post("/prompt", async (req, res) => {
       return res.status(404).json({ error: "Prompt not found" });
     }
 
+    console.log("Selected prompt:", selectedPrompt.name);
+    console.log("User input:", userInput);
+
     // Prepare the full prompt with user input
     const fullPrompt = `${selectedPrompt.prompt}\n\nUser Input: ${userInput}`;
     
     // Convert the response schema for Gemini API
     const convertedSchema = convertSchema(selectedPrompt.responseSchema);
     
+    console.log("Converted schema:", JSON.stringify(convertedSchema, null, 2));
+
     const model = genAI.getGenerativeModel({
       model: modelName,
       systemInstruction: SYSTEMINSTRUCTIONS,
     });
+
+    console.log("Making request to Gemini API...");
 
     // The actual API call
     const result = await model.generateContent({
@@ -159,8 +166,13 @@ router.post("/prompt", async (req, res) => {
         temperature: 0.7,
       },
     });
+
+    console.log("Received response from Gemini API");
+    
     const response = result.response;
     const text = response.text();
+
+    console.log("Raw response text:", text);
 
     // Parse the JSON response
     let parsedResponse;
@@ -168,20 +180,31 @@ router.post("/prompt", async (req, res) => {
       parsedResponse = JSON.parse(text);
     } catch (parseError) {
       console.error("Error parsing response:", parseError);
+      console.error("Raw response that failed to parse:", text);
       return res.status(500).json({ 
         error: "Failed to parse model response",
-        raw_response: text 
+        raw_response: text,
+        parse_error: parseError.message
       });
     }
+
+    console.log("Successfully parsed response:", parsedResponse);
 
     // Return just the parsed JSON response
     res.json(parsedResponse);
 
   } catch (error) {
     console.error("Error calling Gemini API:", error);
+    console.error("Error details:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    
     res.status(500).json({ 
       error: "Failed to generate content from the model.",
-      details: error.message 
+      details: error.message,
+      error_type: error.name
     });
   }
 });
