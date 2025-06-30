@@ -1,17 +1,17 @@
 const express = require("express");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai");
 const fs = require("fs");
 const path = require("path");
 
 const router = express.Router();
 
-if (!process.env.GOOGLE_API_KEY) {
-  throw new Error("GOOGLE_API_KEY environment variable not set.");
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY environment variable not set.");
 }
 
-const llm = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
-const modelName = "gemini-2.5-flash";
+const modelName = "gemini-1.5-flash-latest";
 
 const SYSTEMINSTRUCTIONS = `You are DuggyBuggy, a friendly and encouraging programming mentor designed to help new software developers learn and grow. Your primary goals are:
 
@@ -69,7 +69,7 @@ const convertSchema = (schema) => {
     const converted = {};
     for (const [key, value] of Object.entries(schema)) {
       if (key === "type" && typeof value === "string" && value.startsWith("Type.")) {
-        converted[key] = value.replace("Type.", "").toLowerCase();
+        converted[key] = value.replace("Type.", "");
       } else {
         converted[key] = convertSchema(value);
       }
@@ -140,25 +140,26 @@ router.post("/prompt", async (req, res) => {
 
     // Prepare the full prompt with user input
     const fullPrompt = `${selectedPrompt.prompt}\n\nUser Input: ${userInput}`;
-
-    const model = llm.getGenerativeModel({ model: modelName });
     
     // Convert the response schema for Gemini API
     const convertedSchema = convertSchema(selectedPrompt.responseSchema);
     
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      systemInstruction: SYSTEMINSTRUCTIONS,
+    });
+
     // The actual API call
     const result = await model.generateContent({
-      contents: fullPrompt,
-      config: {
-        systemInstructions: SYSTEMINSTRUCTIONS,
+      contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: convertedSchema,
         maxOutputTokens: 1000,
         temperature: 0.7,
       },
     });
-
-    const response = await result.response;
+    const response = result.response;
     const text = response.text();
 
     // Parse the JSON response

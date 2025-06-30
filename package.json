@@ -16,6 +16,7 @@
   "type": "commonjs",
   "dependencies": {
     "@google/genai": "^1.7.0",
+    "@google/generative-ai": "^0.24.1",
     "wait-on": "^8.0.3"
   },
   "devDependencies": {

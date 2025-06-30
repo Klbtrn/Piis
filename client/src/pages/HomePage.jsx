@@ -24,8 +24,57 @@ export default function HomePage() {
   const [showMessage1, setShowMessage1] = useState(false);
   const [showTyping2, setShowTyping2] = useState(false);
   const [showMessage2, setShowMessage2] = useState(false);
+  const [apiData, setApiData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Fetch API status and available prompts
+    const fetchApiStatus = async () => {
+      try {
+        // Try different possible API endpoints
+        const possibleUrls = [
+          'http://localhost:5000/api/llm',
+          '/api/llm',
+          '/api/llm/',
+          'http://localhost:3000/api/llm'
+        ];
+        
+        let response = null;
+        let lastError = null;
+        
+        for (const url of possibleUrls) {
+          try {
+            console.log(`Trying to connect to: ${url}`);
+            response = await fetch(url);
+            if (response.ok) {
+              console.log(`Successfully connected to: ${url}`);
+              break;
+            }
+          } catch (err) {
+            lastError = err;
+            console.log(`Failed to connect to: ${url}`, err.message);
+          }
+        }
+        
+        if (!response || !response.ok) {
+          throw new Error(lastError?.message || 'All connection attempts failed');
+        }
+        
+        const data = await response.json();
+        setApiData(data);
+      } catch (error) {
+        console.error('Failed to fetch API status:', error);
+        setApiData({ 
+          message: "Unable to connect to BuggyDuggy API - Please check that your server is running",
+          available_prompts: []
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchApiStatus();
+
     const t1 = setTimeout(() => {
       setShowTyping1(false);
       setShowMessage1(true);
@@ -52,6 +101,20 @@ export default function HomePage() {
       default:
         return { name: "Unknown", logo: "" };
     }
+  };
+
+  const getCategoryEmoji = (category) => {
+    const emojiMap = {
+      'programming': '💻',
+      'code-review': '🔍',
+      'education': '📚',
+      'debugging': '🐛',
+      'flashcards': '🎴',
+      'project-planning': '📋',
+      'error-help': '❗',
+      'best-practices': '⭐'
+    };
+    return emojiMap[category] || '🔧';
   };
 
   return (
@@ -153,11 +216,11 @@ export default function HomePage() {
                 />
                 <div className="bg-purple-900/40 p-4 rounded-xl relative before:content-[''] before:absolute before:top-4 before:-left-2 before:border-8 before:border-transparent before:border-r-purple-900/40">
                   <p className="leading-relaxed text-left">
-                    Hi, welcome to DuggyBuggy 👋
+                    Hi, welcome to BuggyDuggy! 👋
                     <br />
-                    I am Duggy and I will help you
+                    I'm Duggy, your friendly programming mentor.
                     <br />
-                    getting better at programming
+                    Let me check my systems...
                   </p>
                 </div>
               </motion.div>
@@ -189,13 +252,40 @@ export default function HomePage() {
                   className="w-8 h-8 mt-3 scale-x-[-1]"
                 />
                 <div className="bg-purple-900/40 p-4 rounded-xl relative before:content-[''] before:absolute before:top-4 before:-left-2 before:border-8 before:border-transparent before:border-r-purple-900/40">
-                  <p className="leading-relaxed text-left">
-                    Just copy & paste your code in the
-                    <br />
-                    editor on the left, and I will analyze
-                    <br />
-                    it based on your choice 👨‍💻
-                  </p>
+                  {isLoading ? (
+                    <p className="leading-relaxed text-left">
+                      Connecting to my learning modules...
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      <div>
+                        <p className="leading-relaxed text-left">
+                          <span className="text-green-400">✅ System Status:</span> {apiData?.message || "Connected successfully!"}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-purple-300 font-medium mb-2">Available Learning Modes:</p>
+                        <div className="space-y-1 text-sm">
+                          {apiData?.available_prompts?.map((prompt, index) => (
+                            <div key={prompt.id} className="flex items-center gap-2 text-gray-300">
+                              <span>{getCategoryEmoji(prompt.category)}</span>
+                              <span className="font-medium text-purple-200">{prompt.name}</span>
+                            </div>
+                          )) || (
+                            <p className="text-red-400">No learning modes available</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="pt-2 border-t border-purple-800/50">
+                        <p className="text-sm leading-relaxed">
+                          Paste your code in the editor and click <span className="text-purple-300 font-medium">Analyze</span> to get started! 
+                          I'll help you learn and improve your programming skills. 🚀
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
