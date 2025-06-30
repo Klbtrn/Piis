@@ -164,7 +164,7 @@ export default function HomePage() {
       } catch (error) {
         console.error('Failed to fetch API status:', error);
         setApiData({ 
-          message: "Unable to connect to BuggyDuggy API - Please check that your server is running",
+          message: "Unable to connect to DuggyBuggy API - Please check that your server is running",
           available_prompts: []
         });
       } finally {
@@ -418,7 +418,7 @@ export default function HomePage() {
                 />
                 <div className="bg-purple-900/40 p-4 rounded-xl relative before:content-[''] before:absolute before:top-4 before:-left-2 before:border-8 before:border-transparent before:border-r-purple-900/40">
                   <p className="leading-relaxed text-left">
-                    Hi, welcome to BuggyDuggy! 👋
+                    Hi, welcome to DuggyBuggy! 👋
                     <br />
                     I'm Duggy, your friendly programming mentor.
                     <br />
