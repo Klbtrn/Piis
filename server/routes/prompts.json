@@ -1,0 +1,145 @@
+{
+  "prompts": [
+    {
+      "id": "structured_programming_task",
+      "name": "Structured Programming Task Response",
+      "description": "Prompt for getting structured responses about programming tasks with detailed metadata",
+      "category": "programming",
+      "prompt": "Analyze the given programming task and provide a comprehensive educational response. Create multiple solutions with different approaches, explain the concepts clearly, provide helpful hints, and include practical examples. Focus on teaching programming concepts effectively and helping students understand both the problem and various solution strategies.",
+      "tags": ["programming", "structured-response", "educational", "coding-tasks"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "task_description": {
+            "type": "Type.STRING"
+          },
+          "language": {
+            "type": "Type.STRING"
+          },
+          "tags": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "difficulty_level": {
+            "type": "Type.STRING"
+          },
+          "number_of_solutions": {
+            "type": "Type.STRING"
+          },
+          "response_format": {
+            "type": "Type.OBJECT",
+            "properties": {
+              "id": {
+                "type": "Type.STRING"
+              },
+              "name": {
+                "type": "Type.STRING"
+              },
+              "tags": {
+                "type": "Type.ARRAY",
+                "items": {
+                  "type": "Type.STRING"
+                }
+              },
+              "content": {
+                "type": "Type.STRING"
+              },
+              "answer": {
+                "type": "Type.ARRAY",
+                "items": {
+                  "type": "Type.OBJECT",
+                  "properties": {
+                    "solution": {
+                      "type": "Type.STRING"
+                    },
+                    "is_best_solution": {
+                      "type": "Type.BOOLEAN"
+                    }
+                  },
+                  "propertyOrdering": ["solution", "is_best_solution"]
+                }
+              },
+              "hints": {
+                "type": "Type.ARRAY",
+                "items": {
+                  "type": "Type.STRING"
+                }
+              },
+              "difficulty": {
+                "type": "Type.STRING"
+              },
+              "language": {
+                "type": "Type.STRING"
+              },
+              "type": {
+                "type": "Type.STRING"
+              },
+              "created_at": {
+                "type": "Type.STRING"
+              },
+              "updated_at": {
+                "type": "Type.STRING"
+              },
+              "explanation": {
+                "type": "Type.STRING"
+              },
+              "examples": {
+                "type": "Type.ARRAY",
+                "items": {
+                  "type": "Type.OBJECT",
+                  "properties": {
+                    "input": {
+                      "type": "Type.STRING"
+                    },
+                    "output": {
+                      "type": "Type.STRING"
+                    }
+                  },
+                  "propertyOrdering": ["input", "output"]
+                }
+              },
+              "difficulty_level": {
+                "type": "Type.INTEGER"
+              },
+              "user_rating": {
+                "type": "Type.OBJECT",
+                "properties": {
+                  "average_rating": {
+                    "type": "Type.NUMBER"
+                  },
+                  "number_of_ratings": {
+                    "type": "Type.INTEGER"
+                  }
+                },
+                "propertyOrdering": ["average_rating", "number_of_ratings"]
+              },
+              "progress": {
+                "type": "Type.OBJECT",
+                "properties": {
+                  "user_completed": {
+                    "type": "Type.BOOLEAN"
+                  },
+                  "attempted_count": {
+                    "type": "Type.INTEGER"
+                  },
+                  "last_attempted": {
+                    "type": "Type.STRING"
+                  }
+                },
+                "propertyOrdering": ["user_completed", "attempted_count", "last_attempted"]
+              }
+            },
+            "propertyOrdering": ["id", "name", "tags", "content", "answer", "hints", "difficulty", "language", "type", "created_at", "updated_at", "explanation", "examples", "difficulty_level", "user_rating", "progress"]
+          }
+        },
+        "propertyOrdering": ["task_description", "language", "tags", "difficulty_level", "number_of_solutions", "response_format"]
+      }
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "created_at": "2025-06-30T12:00:00Z"
+  }
+}

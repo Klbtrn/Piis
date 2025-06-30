@@ -3,18 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "install-all": "npm --prefix client install && npm --prefix server install",
-  "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
-  "start:docker": "concurrently \"docker-compose up\" \"wait-on tcp:27017 && npm run dev\"",
-  "start:podman": "concurrently \"podman-compose up\" \"wait-on tcp:27017 && npm run dev\"",
-  "start": "npm run start:docker"
-},
+  "scripts": {
+    "install-all": "npm --prefix client install && npm --prefix server install",
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "start:docker": "concurrently \"docker-compose up\" \"wait-on tcp:27017 && npm run dev\"",
+    "start:podman": "concurrently \"podman-compose up\" \"wait-on tcp:27017 && npm run dev\"",
+    "start": "npm run start:docker"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@google/genai": "^1.7.0",
     "wait-on": "^8.0.3"
   },
   "devDependencies": {
