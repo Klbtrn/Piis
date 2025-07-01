@@ -3,7 +3,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 
-export default function Editor({ language, code, setCode }) {
+export default function Editor({ language, code, setCode, editable }) {
   const extensions = {
     python: python(),
     javascript: javascript(),
@@ -21,6 +21,7 @@ export default function Editor({ language, code, setCode }) {
         }}
         extensions={[extensions[language] || python()]}
         onChange={(value) => setCode(value)}
+        editable={editable}
         theme="dark"
         className="text-sm text-left"
       />
