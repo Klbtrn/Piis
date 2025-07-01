@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Beispielroute
+// Basic route
 app.get("/", (req, res) => {
   res.send("DuggyBuggy API läuft 🚀");
 });
@@ -27,6 +27,9 @@ mongoose
   .then(() => console.log("🟢 Verbunden mit MongoDB"))
   .catch((err) => console.error("🔴 MongoDB-Verbindungsfehler:", err));
 
-// Importiere die Flashcard-Routen
+// Import and mount routes
 const flashcardRoutes = require("./routes/flashcards");
+const llmRoutes = require("./routes/llmapi"); 
+
 app.use("/api/flashcards", flashcardRoutes);
+app.use("/api/llm", llmRoutes); 

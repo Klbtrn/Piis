@@ -1,0 +1,527 @@
+{
+  "prompts": [
+    {
+      "id": "structured_programming_task",
+      "name": "Structured Programming Task Response",
+      "description": "Prompt for getting structured responses about programming tasks with detailed metadata",
+      "category": "programming",
+      "prompt": "Analyze the given programming task and provide a comprehensive educational response. Create multiple solutions with different approaches, explain the concepts clearly, provide helpful hints, and include practical examples. Focus on teaching programming concepts effectively and helping students understand both the problem and various solution strategies.",
+      "tags": ["programming", "structured-response", "educational", "coding-tasks"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "task_description": {
+            "type": "Type.STRING"
+          },
+          "language": {
+            "type": "Type.STRING"
+          },
+          "tags": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "difficulty_level": {
+            "type": "Type.STRING"
+          },
+          "solutions": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "approach": {
+                  "type": "Type.STRING"
+                },
+                "code": {
+                  "type": "Type.STRING"
+                },
+                "explanation": {
+                  "type": "Type.STRING"
+                },
+                "is_recommended": {
+                  "type": "Type.BOOLEAN"
+                }
+              }
+            }
+          },
+          "hints": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "key_concepts": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "difficulty": {
+                "type": "Type.STRING"
+              },
+          "examples": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "input": {
+                  "type": "Type.STRING"
+                },
+                "output": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "code_review_analysis",
+      "name": "Code Review and Analysis",
+      "description": "Analyze submitted code for best practices, potential issues, and learning opportunities",
+      "category": "code-review",
+      "prompt": "Review the provided code like a friendly mentor. Identify strengths, areas for improvement, potential bugs, and learning opportunities. Focus on helping the developer understand why certain practices are recommended and how they can improve their coding skills.",
+      "tags": ["code-review", "best-practices", "mentoring", "feedback"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "overall_assessment": {
+            "type": "Type.STRING"
+          },
+          "strengths": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "aspect": {
+                  "type": "Type.STRING"
+                },
+                "explanation": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "improvements": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "issue": {
+                  "type": "Type.STRING"
+                },
+                "explanation": {
+                  "type": "Type.STRING"
+                },
+                "suggested_fix": {
+                  "type": "Type.STRING"
+                },
+                "priority": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "learning_opportunities": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "next_steps": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "concept_explanation",
+      "name": "Programming Concept Explanation",
+      "description": "Explain programming concepts in beginner-friendly terms with examples",
+      "category": "education",
+      "prompt": "Explain the requested programming concept in clear, beginner-friendly terms. Use analogies, real-world examples, and practical code demonstrations. Structure the explanation to build understanding progressively and highlight key points that would be good for flashcard review.",
+      "tags": ["concepts", "explanation", "education", "fundamentals"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "concept_name": {
+            "type": "Type.STRING"
+          },
+          "simple_explanation": {
+            "type": "Type.STRING"
+          },
+          "detailed_explanation": {
+            "type": "Type.STRING"
+          },
+          "real_world_analogy": {
+            "type": "Type.STRING"
+          },
+          "code_examples": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "example_title": {
+                  "type": "Type.STRING"
+                },
+                "code": {
+                  "type": "Type.STRING"
+                },
+                "explanation": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "key_takeaways": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "common_misconceptions": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "related_concepts": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "debugging_helper",
+      "name": "Debugging Assistant",
+      "description": "Help debug code issues and teach debugging strategies",
+      "category": "debugging",
+      "prompt": "Help debug the provided code or error. Explain what's wrong, why it's happening, and how to fix it. More importantly, teach debugging strategies and help the developer learn how to approach similar problems in the future.",
+      "tags": ["debugging", "error-fixing", "problem-solving", "troubleshooting"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "problem_identified": {
+            "type": "Type.STRING"
+          },
+          "root_cause_explanation": {
+            "type": "Type.STRING"
+          },
+          "solution": {
+            "type": "Type.STRING"
+          },
+          "corrected_code": {
+            "type": "Type.STRING"
+          },
+          "debugging_steps": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "step": {
+                  "type": "Type.STRING"
+                },
+                "reasoning": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "prevention_tips": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "similar_issues": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "flashcard_generator",
+      "name": "Flashcard Content Generator",
+      "description": "Generate flashcard content from programming concepts or code",
+      "category": "flashcards",
+      "prompt": "Create educational flashcard content from the provided programming material. Focus on key concepts, important syntax, and memorable facts that would help with spaced repetition learning. Make questions clear and answers comprehensive but concise.",
+      "tags": ["flashcards", "spaced-repetition", "memory", "review"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "topic": {
+            "type": "Type.STRING"
+          },
+          "flashcards": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "question": {
+                  "type": "Type.STRING"
+                },
+                "answer": {
+                  "type": "Type.STRING"
+                },
+                "difficulty": {
+                  "type": "Type.STRING"
+                },
+                "tags": {
+                  "type": "Type.ARRAY",
+                  "items": {
+                    "type": "Type.STRING"
+                  }
+                },
+                "hint": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "study_tips": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "project_guidance",
+      "name": "Project Planning and Guidance",
+      "description": "Provide guidance on how to approach programming projects",
+      "category": "project-planning",
+      "prompt": "Help plan and structure the requested programming project. Break it down into manageable steps, suggest technologies and approaches, and provide learning milestones. Focus on teaching project planning skills and best practices for development workflow.",
+      "tags": ["project-planning", "architecture", "workflow", "best-practices"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "project_overview": {
+            "type": "Type.STRING"
+          },
+          "recommended_technologies": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "technology": {
+                  "type": "Type.STRING"
+                },
+                "purpose": {
+                  "type": "Type.STRING"
+                },
+                "learning_curve": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "project_phases": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "phase_name": {
+                  "type": "Type.STRING"
+                },
+                "description": {
+                  "type": "Type.STRING"
+                },
+                "estimated_time": {
+                  "type": "Type.STRING"
+                },
+                "key_skills": {
+                  "type": "Type.ARRAY",
+                  "items": {
+                    "type": "Type.STRING"
+                  }
+                }
+              }
+            }
+          },
+          "learning_milestones": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "potential_challenges": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "challenge": {
+                  "type": "Type.STRING"
+                },
+                "preparation": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "error_explanation",
+      "name": "Error Message Explanation",
+      "description": "Explain error messages in plain English and provide solutions",
+      "category": "error-help",
+      "prompt": "Explain the provided error message in simple terms that a beginner can understand. Break down what the error means, why it occurs, and provide step-by-step solutions. Include tips on how to prevent similar errors in the future.",
+      "tags": ["errors", "troubleshooting", "explanation", "debugging"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "error_type": {
+            "type": "Type.STRING"
+          },
+          "plain_english_explanation": {
+            "type": "Type.STRING"
+          },
+          "common_causes": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "solutions": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "solution": {
+                  "type": "Type.STRING"
+                },
+                "steps": {
+                  "type": "Type.ARRAY",
+                  "items": {
+                    "type": "Type.STRING"
+                  }
+                }
+              }
+            }
+          },
+          "prevention_tips": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "related_concepts": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "best_practices_guide",
+      "name": "Best Practices Guide",
+      "description": "Provide best practices guidance for specific programming topics",
+      "category": "best-practices",
+      "prompt": "Provide comprehensive best practices guidance for the requested programming topic. Explain why these practices matter, show good and bad examples, and help developers understand the reasoning behind industry standards.",
+      "tags": ["best-practices", "standards", "clean-code", "professional-development"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "topic": {
+            "type": "Type.STRING"
+          },
+          "core_principles": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "principle": {
+                  "type": "Type.STRING"
+                },
+                "explanation": {
+                  "type": "Type.STRING"
+                },
+                "why_it_matters": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "good_examples": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "example_title": {
+                  "type": "Type.STRING"
+                },
+                "code": {
+                  "type": "Type.STRING"
+                },
+                "explanation": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "bad_examples": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.OBJECT",
+              "properties": {
+                "example_title": {
+                  "type": "Type.STRING"
+                },
+                "code": {
+                  "type": "Type.STRING"
+                },
+                "why_its_bad": {
+                  "type": "Type.STRING"
+                }
+              }
+            }
+          },
+          "common_mistakes": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "resources_for_learning": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "version": "2.0",
+    "created_at": "2025-06-30T12:00:00Z",
+    "updated_at": "2025-06-30T14:30:00Z",
+    "total_prompts": 8,
+    "categories": [
+      "programming",
+      "code-review", 
+      "education",
+      "debugging",
+      "flashcards",
+      "project-planning",
+      "error-help",
+      "best-practices"
+    ]
+  }
+}
