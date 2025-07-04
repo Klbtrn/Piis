@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,22 @@ import duggyLogo from "/src/assets/duggy-logo.png";
 
 import Navbar from "@/components/Navbar";
 
+class HelperSession {
+  constructor(initialData) {
+    this.initialEditorContent = initialData.initialEditorContent;
+    this.textHint = initialData.textHint;
+    this.codeHint = initialData.codeHint;
+    this.solution = initialData.solution;
+    this.problemDescription = initialData.problemDescription;
+    this.keyConcepts = initialData.keyConcepts || [];
+  }
+
+  updateHints(textHint, codeHint) {
+    this.textHint = textHint;
+    this.codeHint = codeHint;
+  }
+}
+
 export default function HomePage() {
   const [language, setLanguage] = useState("python");
   const [showTyping1, setShowTyping1] = useState(true);
@@ -32,17 +48,29 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [apiBaseUrl, setApiBaseUrl] = useState(null);
 
+  const [helperSession, setHelperSession] = useState(null);
+  const [isHelperMode, setIsHelperMode] = useState(false);
+  const [editorContent, setEditorContent] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showHints, setShowHints] = useState({ text: false, code: false });
+  const [showSolution, setShowSolution] = useState(false);
+  const [showGenerateFlashcard, setShowGenerateFlashcard] = useState(false);
+  const [helperMessages, setHelperMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const editorRef = useRef(null);
+
   const makeTestApiCall = async (baseUrl) => {
     try {
-      console.log('Making test API call...');
+      console.log('Making test API call with test_prompt...');
       const response = await fetch(`${baseUrl}/prompt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          promptId: 'concept_explanation',
-          userInput: 'Explain what variables are in programming'
+          promptId: 'test_prompt',
+          userInput: 'Running test to verify API connectivity and prompt system'
         })
       });
 
@@ -104,6 +132,192 @@ export default function HomePage() {
         }, 1000);
       });
     }
+  };
+
+  const addHelperMessage = (message, type = 'duggy') => {
+    setHelperMessages(prev => [...prev, { ...message, type, timestamp: Date.now() }]);
+  };
+
+  const handleInitialAnalysis = async () => {
+    if (!editorContent.trim()) {
+      addHelperMessage({
+        text: "I don't see any code to analyze! Please paste your code in the editor first. 🤔"
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/prompt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          promptId: 'helper_initial_prompt',
+          userInput: `Please analyze this code:\n\n${editorContent}`
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      setTimeout(() => {
+        setIsTyping(false);
+        
+        if (result.needs_clarification) {
+          addHelperMessage({
+            text: result.clarification_request,
+            type: 'clarification'
+          });
+        } else {
+          const session = new HelperSession({
+            initialEditorContent: editorContent,
+            textHint: result.text_hint,
+            codeHint: result.code_hint,
+            solution: result.solution,
+            problemDescription: result.problem_description,
+            keyConcepts: result.key_concepts
+          });
+          
+          setHelperSession(session);
+          setIsHelperMode(true);
+          
+          addHelperMessage({
+            text: `Great! I can see you're working on: ${result.problem_description}\n\nI'm ready to help you solve this step by step. You can use the hint buttons below, or keep editing your code and click "Re-Analyze" for updated guidance! 💪`,
+            showControls: true
+          });
+        }
+      }, 1500);
+
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      setIsTyping(false);
+      addHelperMessage({
+        text: `Oops! I had trouble analyzing your code: ${error.message}. Please try again! 😅`
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleReAnalysis = async () => {
+    if (!helperSession) return;
+
+    setIsAnalyzing(true);
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/prompt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          promptId: 'helper_analyse_prompt',
+          userInput: `Current code:\n${editorContent}\n\nTarget solution:\n${helperSession.solution}\n\nOriginal problem: ${helperSession.problemDescription}`
+        })
+      });
+
+      const result = await response.json();
+      
+      setTimeout(() => {
+        setIsTyping(false);
+        
+        helperSession.updateHints(result.text_hint, result.code_hint);
+        
+        addHelperMessage({
+          text: result.feedback_message,
+          progress: result.progress_assessment,
+          improvements: result.improvements_made,
+          issues: result.issues_found,
+          showControls: true
+        });
+        
+        setShowHints({ text: false, code: false });
+      }, 1500);
+
+    } catch (error) {
+      console.error('Re-analysis failed:', error);
+      setIsTyping(false);
+      addHelperMessage({
+        text: `I had trouble re-analyzing your code: ${error.message}. Please try again! 😅`
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleShowHint = (type) => {
+    if (!helperSession) return;
+    
+    const hint = type === 'text' ? helperSession.textHint : helperSession.codeHint;
+    setShowHints(prev => ({ ...prev, [type]: true }));
+    
+    addHelperMessage({
+      text: type === 'text' ? `💡 Text Hint: ${hint}` : `🔧 Code Hint:\n\`\`\`\n${hint}\n\`\`\``,
+      type: 'hint'
+    });
+  };
+
+  const handleShowSolution = () => {
+    if (!helperSession) return;
+    
+    setShowSolution(true);
+    setShowGenerateFlashcard(true);
+    
+    addHelperMessage({
+      text: `Here's the complete solution:\n\n\`\`\`\n${helperSession.solution}\n\`\`\`\n\nDon't worry if you needed to see the solution - that's part of learning! 🎯`,
+      type: 'solution'
+    });
+  };
+
+  const handleGenerateFlashcard = async () => {
+    if (!helperSession) return;
+
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/prompt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          promptId: 'helper_generate_flashcard_prompt',
+          userInput: `Initial code:\n${helperSession.initialEditorContent}\n\nSolution:\n${helperSession.solution}\n\nProblem: ${helperSession.problemDescription}\n\nKey concepts: ${helperSession.keyConcepts.join(', ')}`
+        })
+      });
+
+      const result = await response.json();
+      
+      setTimeout(() => {
+        setIsTyping(false);
+        addHelperMessage({
+          text: `🎴 Perfect! I've created a flashcard for this problem. It will help you remember these concepts: ${result.key_concepts.join(', ')}\n\nYou can find it in your flashcard collection for future practice! ✨`,
+          type: 'success'
+        });
+        
+        // Here you would typically save the flashcard to your database
+        console.log('Generated flashcard:', result);
+      }, 1500);
+
+    } catch (error) {
+      console.error('Flashcard generation failed:', error);
+      setIsTyping(false);
+      addHelperMessage({
+        text: `I had trouble creating the flashcard: ${error.message}. The learning was still valuable though! 🌟`
+      });
+    }
+  };
+
+  const resetHelper = () => {
+    setHelperSession(null);
+    setIsHelperMode(false);
+    setShowHints({ text: false, code: false });
+    setShowSolution(false);
+    setShowGenerateFlashcard(false);
+    setHelperMessages([]);
+    setEditorContent("");
   };
 
   useEffect(() => {
@@ -211,7 +425,10 @@ export default function HomePage() {
       'flashcards': '🎴',
       'project-planning': '📋',
       'error-help': '❗',
-      'best-practices': '⭐'
+      'best-practices': '⭐',
+      'helper': '🆘',
+      'trainer': '🏋️',
+      'test': '🧪'
     };
     return emojiMap[category] || '🔧';
   };
@@ -234,6 +451,7 @@ export default function HomePage() {
               <li>• Verify your backend server is running on the correct port</li>
               <li>• Check browser console for detailed error logs</li>
               <li>• Ensure prompts.json file is accessible</li>
+              <li>• Verify test_prompt exists in your prompts configuration</li>
             </ul>
             
             <div className="pt-2 mt-2 border-t border-gray-600">
@@ -256,6 +474,7 @@ export default function HomePage() {
                 <p className="text-gray-400">API Base URL: {apiBaseUrl}</p>
                 <p className="text-gray-400">Available Prompts: {apiData?.available_prompts?.length || 0}</p>
                 <p className="text-gray-400">Test Endpoint: {apiBaseUrl}/prompt</p>
+                <p className="text-gray-400">Test Prompt ID: test_prompt</p>
               </div>
             )}
           </div>
@@ -267,40 +486,25 @@ export default function HomePage() {
       <div className="space-y-3">
         <div>
           <p className="text-green-400 font-medium">✅ Test API Call Successful!</p>
-          <p className="text-sm text-gray-300">Asked: "Explain what variables are in programming"</p>
+          <p className="text-sm text-gray-300">Used test_prompt: "Running test to verify API connectivity and prompt system"</p>
         </div>
         
         <div className="bg-zinc-800 p-3 rounded-lg text-sm space-y-2">
           <div>
-            <span className="text-purple-300 font-medium">Concept:</span>
-            <p className="text-gray-200">{testApiResponse.concept_name || 'N/A'}</p>
+            <span className="text-purple-300 font-medium">🧪 Test Status:</span>
+            <p className="text-gray-200">
+              {testApiResponse.test_successful ? (
+                <span className="text-green-400">✅ Test Successful</span>
+              ) : (
+                <span className="text-red-400">❌ Test Failed</span>
+              )}
+            </p>
           </div>
           
           <div>
-            <span className="text-purple-300 font-medium">Simple Explanation:</span>
-            <p className="text-gray-200">{testApiResponse.simple_explanation || 'N/A'}</p>
+            <span className="text-purple-300 font-medium">Test Message:</span>
+            <p className="text-gray-200">{testApiResponse.test_message || 'No test message received'}</p>
           </div>
-          
-          {testApiResponse.real_world_analogy && (
-            <div>
-              <span className="text-purple-300 font-medium">Analogy:</span>
-              <p className="text-gray-200">{testApiResponse.real_world_analogy}</p>
-            </div>
-          )}
-          
-          {testApiResponse.key_takeaways && testApiResponse.key_takeaways.length > 0 && (
-            <div>
-              <span className="text-purple-300 font-medium">Key Points:</span>
-              <ul className="text-gray-200 text-xs mt-1 space-y-1">
-                {testApiResponse.key_takeaways.slice(0, 3).map((takeaway, index) => (
-                  <li key={index} className="flex items-start gap-1">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>{takeaway}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
           
           <div className="pt-2 mt-2 border-t border-gray-600">
             <button 
@@ -313,9 +517,100 @@ export default function HomePage() {
         </div>
         
         <p className="text-xs text-gray-400">
-          🎉 DuggyBuggy AI is working perfectly! Ready to help you learn.
+          🎉 DuggyBuggy AI is working perfectly! The test_prompt is functioning correctly.
         </p>
       </div>
+    );
+  };
+
+  const renderHelperMessage = (message, index) => {
+    return (
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex items-start gap-2"
+      >
+        <img
+          src={duggyLogo}
+          alt="Duggy"
+          className="w-8 h-8 mt-3 scale-x-[-1]"
+        />
+        <div className="bg-purple-900/40 p-4 rounded-xl relative before:content-[''] before:absolute before:top-4 before:-left-2 before:border-8 before:border-transparent before:border-r-purple-900/40">
+          <div className="space-y-3">
+            <p className="leading-relaxed text-left whitespace-pre-line">
+              {message.text}
+            </p>
+            
+            {message.improvements && message.improvements.length > 0 && (
+              <div className="bg-green-900/30 p-2 rounded">
+                <p className="text-green-300 font-medium text-sm">✅ Great improvements:</p>
+                <ul className="text-sm mt-1">
+                  {message.improvements.map((item, i) => (
+                    <li key={i} className="text-green-200">• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {message.issues && message.issues.length > 0 && (
+              <div className="bg-yellow-900/30 p-2 rounded">
+                <p className="text-yellow-300 font-medium text-sm">🔍 Areas to work on:</p>
+                <ul className="text-sm mt-1">
+                  {message.issues.map((item, i) => (
+                    <li key={i} className="text-yellow-200">• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {message.showControls && helperSession && (
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-purple-800/50">
+                {!showHints.text && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleShowHint('text')}
+                    className="bg-blue-900/40 border-blue-600 text-blue-300 hover:bg-blue-800/40"
+                  >
+                    💡 Text Hint
+                  </Button>
+                )}
+                {!showHints.code && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleShowHint('code')}
+                    className="bg-green-900/40 border-green-600 text-green-300 hover:bg-green-800/40"
+                  >
+                    🔧 Code Hint
+                  </Button>
+                )}
+                {!showSolution && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleShowSolution}
+                    className="bg-orange-900/40 border-orange-600 text-orange-300 hover:bg-orange-800/40"
+                  >
+                    🎯 Solution
+                  </Button>
+                )}
+                {showGenerateFlashcard && (
+                  <Button
+                    size="sm"
+                    onClick={handleGenerateFlashcard}
+                    className="bg-purple-600 text-white hover:bg-purple-700"
+                  >
+                    🎴 Generate Flashcard
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
     );
   };
 
@@ -358,6 +653,12 @@ export default function HomePage() {
 
             {/* Mode Indicators */}
             <div className="flex items-center space-x-4">
+              {isHelperMode && (
+                <div className="flex items-center space-x-2 bg-purple-900/40 px-3 py-1 rounded-full">
+                  <span className="w-3 h-3 bg-purple-500 rounded-full animate-pulse" />
+                  <span className="text-sm text-purple-300">Helper Mode</span>
+                </div>
+              )}
               <div className="flex items-center space-x-2">
                 <span className="w-3 h-3 bg-purple-500 rounded-full" />
                 <span className="text-sm">Mistakes</span>
@@ -371,16 +672,26 @@ export default function HomePage() {
 
           {/* Editor */}
           <div className="flex-grow">
-            <Editor language={language} />
+            <Editor 
+              language={language} 
+              ref={editorRef}
+              value={editorContent}
+              onChange={setEditorContent}
+            />
           </div>
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-4">
-            <Button className="bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold px-6 py-2 rounded-full hover:opacity-90 transition-all">
-              Analyze
+            <Button 
+              onClick={isHelperMode ? handleReAnalysis : handleInitialAnalysis}
+              disabled={isAnalyzing || !apiBaseUrl}
+              className="bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold px-6 py-2 rounded-full hover:opacity-90 transition-all disabled:opacity-50"
+            >
+              {isAnalyzing ? "Analyzing..." : isHelperMode ? "Re-Analyze" : "Analyze"}
             </Button>
             <Button
               variant="outline"
+              onClick={resetHelper}
               className="border-purple-600 text-purple-400 hover:bg-purple-900/40 rounded-full"
             >
               Reset
@@ -482,7 +793,7 @@ export default function HomePage() {
                       
                       <div className="pt-2 border-t border-purple-800/50">
                         <p className="text-sm leading-relaxed">
-                          Now let me test my AI capabilities...
+                          Now let me test my AI capabilities using the test_prompt...
                         </p>
                       </div>
                     </div>
@@ -499,7 +810,7 @@ export default function HomePage() {
                   className="w-8 h-8 mt-1 scale-x-[-1]"
                 />
                 <div className="bg-purple-900/30 px-4 py-2 rounded-xl italic text-sm text-purple-300 animate-pulse">
-                  Testing AI capabilities...
+                  Running test_prompt to verify AI capabilities...
                 </div>
               </div>
             )}
@@ -526,6 +837,23 @@ export default function HomePage() {
                   </div>
                 </div>
               </motion.div>
+            )}
+
+            {/* Helper Mode Messages */}
+            {helperMessages.map((message, index) => renderHelperMessage(message, index))}
+            
+            {/* Typing indicator for helper mode */}
+            {isTyping && (
+              <div className="flex items-start gap-2">
+                <img
+                  src={duggyLogo}
+                  alt="Duggy"
+                  className="w-8 h-8 mt-1 scale-x-[-1]"
+                />
+                <div className="bg-purple-900/30 px-4 py-2 rounded-xl italic text-sm text-purple-300 animate-pulse">
+                  Duggy is analyzing your code...
+                </div>
+              </div>
             )}
           </div>
         </div>
