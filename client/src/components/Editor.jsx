@@ -3,7 +3,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 
-export default function Editor({ language, code, setCode, editable }) {
+export default function Editor({ height, language, code, setCode, editable }) {
   const extensions = {
     python: python(),
     javascript: javascript(),
@@ -13,7 +13,7 @@ export default function Editor({ language, code, setCode, editable }) {
     <div className="flex-grow rounded-xl overflow-hidden border border-purple-700">
       <CodeMirror
         value={code}
-        height="70vh"
+        height={height || "70vh"}
         basicSetup={{
           lineNumbers: true,
           highlightActiveLine: true,
