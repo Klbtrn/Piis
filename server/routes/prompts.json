@@ -1,55 +1,105 @@
 {
   "prompts": [
     {
-      "id": "structured_programming_task",
-      "name": "Structured Programming Task Response",
-      "description": "Prompt for getting structured responses about programming tasks with detailed metadata",
-      "category": "programming",
-      "prompt": "Analyze the given programming task and provide a comprehensive educational response. Create multiple solutions with different approaches, explain the concepts clearly, provide helpful hints, and include practical examples. Focus on teaching programming concepts effectively and helping students understand both the problem and various solution strategies.",
-      "tags": ["programming", "structured-response", "educational", "coding-tasks"],
+      "id": "helper_initial_prompt",
+      "name": "Helper Initial Analysis",
+      "description": "Initial analysis of user's problematic code to identify errors and guide discovery",
+      "category": "helper",
+      "prompt": "You are a debugging expert analyzing student code for errors while maintaining educational value.\n\nEDUCATIONAL DEBUGGING APPROACH:\n1. FIRST: Identify actual bugs, errors, mistakes in the code\n2. Explain WHAT is wrong and WHY it's problematic\n3. Guide their thinking toward the solution WITHOUT giving the fix\n4. Use guiding questions like 'Consider what happens when...' or 'Think about bounds...'\n5. Let them discover the fix - only 'solution' field contains actual correct code\n\nSTRICT REQUIREMENTS:\n- text_hint: MAX 400 characters - Point out error and guide thinking (NO direct solution)\n- code_hint: MAX 800 characters - Show approach/structure but not exact fix\n- solution: Complete correct code (ONLY this field gives the actual answer)\n- problem_description: MAX 200 characters - what the code does\n- Maintain learning value - guide discovery, don't leak solutions\n\nTasks:\n1. Analyze code for bugs and errors\n2. If purpose unclear: set needs_clarification=true\n3. If clear: provide educational error-focused hints that guide discovery\n\nBalance error detection with educational guidance.",
+      "tags": ["helper", "initial-analysis", "code-review", "problem-solving"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "needs_clarification": {
+            "type": "Type.BOOLEAN"
+          },
+          "clarification_request": {
+            "type": "Type.STRING"
+          },
+          "text_hint": {
+            "type": "Type.STRING"
+          },
+          "code_hint": {
+            "type": "Type.STRING"
+          },
+          "solution": {
+            "type": "Type.STRING"
+          },
+          "problem_description": {
+            "type": "Type.STRING"
+          },
+          "key_concepts": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "helper_analyse_prompt",
+      "name": "Helper Re-Analysis",
+      "description": "Re-analyze updated user code to identify remaining errors while guiding discovery",
+      "category": "helper",
+      "prompt": "Compare student's current code to the target solution, focusing on remaining errors while maintaining educational value.\n\nEDUCATIONAL RE-ANALYSIS:\n1. Identify remaining bugs, errors, mistakes in their current attempt\n2. Compare to correct solution - what's still wrong?\n3. Guide their thinking about remaining issues WITHOUT giving direct fixes\n4. Acknowledge progress made in fixing previous errors\n5. Use educational prompts to guide discovery of remaining issues\n\nSTRICT REQUIREMENTS:\n- feedback_message: MAX 400 characters - Acknowledge progress and guide next steps\n- text_hint: MAX 400 characters - Point out remaining errors and guide thinking (NO direct solutions)\n- code_hint: MAX 800 characters - Show approach for remaining issues but not exact fixes\n- Maintain educational value - help them discover fixes themselves\n\nProvide: educational error-focused hints, encouraging progress feedback, specific remaining issues to think about, recognition of improvements made.",
+      "tags": ["helper", "re-analysis", "progress-tracking", "adaptive-hints"],
+      "responseSchema": {
+        "type": "Type.OBJECT",
+        "properties": {
+          "text_hint": {
+            "type": "Type.STRING"
+          },
+          "code_hint": {
+            "type": "Type.STRING"
+          },
+          "feedback_message": {
+            "type": "Type.STRING"
+          },
+          "progress_assessment": {
+            "type": "Type.STRING",
+            "enum": ["getting_closer", "on_track", "needs_redirection", "almost_there"]
+          },
+          "issues_found": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          },
+          "improvements_made": {
+            "type": "Type.ARRAY",
+            "items": {
+              "type": "Type.STRING"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "helper_generate_flashcard_prompt",
+      "name": "Helper Generate Flashcard",
+      "description": "Generate flashcard content from the helper session",
+      "category": "helper",
+      "prompt": "Create a concise flashcard from the programming problem session.\n\nREQUIREMENTS:\n- task_description: MAX 300 characters\n- text_hint: MAX 400 characters\n- code_hint: MAX 800 characters\n- Focus on core learning objectives\n- Make it self-contained for future practice\n\nCreate educational flashcard content for spaced repetition learning.",
+      "tags": ["helper", "flashcard-generation", "spaced-repetition", "concept-reinforcement"],
       "responseSchema": {
         "type": "Type.OBJECT",
         "properties": {
           "task_description": {
             "type": "Type.STRING"
           },
-          "language": {
+          "text_hint": {
             "type": "Type.STRING"
           },
-          "tags": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
+          "code_hint": {
+            "type": "Type.STRING"
+          },
+          "solution": {
+            "type": "Type.STRING"
           },
           "difficulty_level": {
-            "type": "Type.STRING"
-          },
-          "solutions": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "approach": {
-                  "type": "Type.STRING"
-                },
-                "code": {
-                  "type": "Type.STRING"
-                },
-                "explanation": {
-                  "type": "Type.STRING"
-                },
-                "is_recommended": {
-                  "type": "Type.BOOLEAN"
-                }
-              }
-            }
-          },
-          "hints": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
+            "type": "Type.STRING",
+            "enum": ["beginner", "intermediate", "advanced"]
           },
           "key_concepts": {
             "type": "Type.ARRAY",
@@ -57,74 +107,44 @@
               "type": "Type.STRING"
             }
           },
-          "difficulty": {
-                "type": "Type.STRING"
-              },
-          "examples": {
+          "tags": {
             "type": "Type.ARRAY",
             "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "input": {
-                  "type": "Type.STRING"
-                },
-                "output": {
-                  "type": "Type.STRING"
-                }
-              }
+              "type": "Type.STRING"
             }
+          },
+          "estimated_time_minutes": {
+            "type": "Type.INTEGER"
           }
         }
       }
     },
     {
-      "id": "code_review_analysis",
-      "name": "Code Review and Analysis",
-      "description": "Analyze submitted code for best practices, potential issues, and learning opportunities",
-      "category": "code-review",
-      "prompt": "Review the provided code like a friendly mentor. Identify strengths, areas for improvement, potential bugs, and learning opportunities. Focus on helping the developer understand why certain practices are recommended and how they can improve their coding skills.",
-      "tags": ["code-review", "best-practices", "mentoring", "feedback"],
+      "id": "trainer_analyse_prompt",
+      "name": "Trainer Code Analysis",
+      "description": "Analyze user's code attempt against flashcard solution in trainer mode",
+      "category": "trainer",
+      "prompt": "Analyze student's flashcard exercise attempt.\n\nREQUIREMENTS:\n- feedback_message: MAX 400 characters\n- Be educational and supportive but brief\n- Focus on learning progress, not just correctness\n\nCompare code to expected solution and provide: constructive feedback, mastery determination, correctness percentage, specific strengths, improvement areas, concrete next steps.",
+      "tags": ["trainer", "flashcard-analysis", "mastery-assessment", "feedback"],
       "responseSchema": {
         "type": "Type.OBJECT",
         "properties": {
-          "overall_assessment": {
+          "feedback_message": {
             "type": "Type.STRING"
+          },
+          "mastered": {
+            "type": "Type.BOOLEAN"
+          },
+          "correctness_percentage": {
+            "type": "Type.INTEGER"
           },
           "strengths": {
             "type": "Type.ARRAY",
             "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "aspect": {
-                  "type": "Type.STRING"
-                },
-                "explanation": {
-                  "type": "Type.STRING"
-                }
-              }
+              "type": "Type.STRING"
             }
           },
-          "improvements": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "issue": {
-                  "type": "Type.STRING"
-                },
-                "explanation": {
-                  "type": "Type.STRING"
-                },
-                "suggested_fix": {
-                  "type": "Type.STRING"
-                },
-                "priority": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          },
-          "learning_opportunities": {
+          "areas_for_improvement": {
             "type": "Type.ARRAY",
             "items": {
               "type": "Type.STRING"
@@ -135,393 +155,44 @@
             "items": {
               "type": "Type.STRING"
             }
+          },
+          "encouragement_level": {
+            "type": "Type.STRING",
+            "enum": ["high", "medium", "gentle_push", "strong_encouragement"]
           }
         }
       }
     },
     {
-      "id": "concept_explanation",
-      "name": "Programming Concept Explanation",
-      "description": "Explain programming concepts in beginner-friendly terms with examples",
-      "category": "education",
-      "prompt": "Explain the requested programming concept in clear, beginner-friendly terms. Use analogies, real-world examples, and practical code demonstrations. Structure the explanation to build understanding progressively and highlight key points that would be good for flashcard review.",
-      "tags": ["concepts", "explanation", "education", "fundamentals"],
+      "id": "test_prompt",
+      "name": "Test Prompt",
+      "description": "A simple test prompt for development and debugging purposes.",
+      "category": "test",
+      "prompt": "This is a test prompt. Respond with a brief test message and confirm success. Keep response under 200 characters total.",
+      "tags": ["test", "debug", "development"],
       "responseSchema": {
         "type": "Type.OBJECT",
         "properties": {
-          "concept_name": {
+          "test_message": {
             "type": "Type.STRING"
           },
-          "simple_explanation": {
-            "type": "Type.STRING"
-          },
-          "detailed_explanation": {
-            "type": "Type.STRING"
-          },
-          "real_world_analogy": {
-            "type": "Type.STRING"
-          },
-          "code_examples": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "example_title": {
-                  "type": "Type.STRING"
-                },
-                "code": {
-                  "type": "Type.STRING"
-                },
-                "explanation": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          },
-          "key_takeaways": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "common_misconceptions": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "related_concepts": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          }
-        }
-      }
-    },
-    {
-      "id": "debugging_helper",
-      "name": "Debugging Assistant",
-      "description": "Help debug code issues and teach debugging strategies",
-      "category": "debugging",
-      "prompt": "Help debug the provided code or error. Explain what's wrong, why it's happening, and how to fix it. More importantly, teach debugging strategies and help the developer learn how to approach similar problems in the future.",
-      "tags": ["debugging", "error-fixing", "problem-solving", "troubleshooting"],
-      "responseSchema": {
-        "type": "Type.OBJECT",
-        "properties": {
-          "problem_identified": {
-            "type": "Type.STRING"
-          },
-          "root_cause_explanation": {
-            "type": "Type.STRING"
-          },
-          "solution": {
-            "type": "Type.STRING"
-          },
-          "corrected_code": {
-            "type": "Type.STRING"
-          },
-          "debugging_steps": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "step": {
-                  "type": "Type.STRING"
-                },
-                "reasoning": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          },
-          "prevention_tips": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "similar_issues": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          }
-        }
-      }
-    },
-    {
-      "id": "flashcard_generator",
-      "name": "Flashcard Content Generator",
-      "description": "Generate flashcard content from programming concepts or code",
-      "category": "flashcards",
-      "prompt": "Create educational flashcard content from the provided programming material. Focus on key concepts, important syntax, and memorable facts that would help with spaced repetition learning. Make questions clear and answers comprehensive but concise.",
-      "tags": ["flashcards", "spaced-repetition", "memory", "review"],
-      "responseSchema": {
-        "type": "Type.OBJECT",
-        "properties": {
-          "topic": {
-            "type": "Type.STRING"
-          },
-          "flashcards": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "question": {
-                  "type": "Type.STRING"
-                },
-                "answer": {
-                  "type": "Type.STRING"
-                },
-                "difficulty": {
-                  "type": "Type.STRING"
-                },
-                "tags": {
-                  "type": "Type.ARRAY",
-                  "items": {
-                    "type": "Type.STRING"
-                  }
-                },
-                "hint": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          },
-          "study_tips": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          }
-        }
-      }
-    },
-    {
-      "id": "project_guidance",
-      "name": "Project Planning and Guidance",
-      "description": "Provide guidance on how to approach programming projects",
-      "category": "project-planning",
-      "prompt": "Help plan and structure the requested programming project. Break it down into manageable steps, suggest technologies and approaches, and provide learning milestones. Focus on teaching project planning skills and best practices for development workflow.",
-      "tags": ["project-planning", "architecture", "workflow", "best-practices"],
-      "responseSchema": {
-        "type": "Type.OBJECT",
-        "properties": {
-          "project_overview": {
-            "type": "Type.STRING"
-          },
-          "recommended_technologies": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "technology": {
-                  "type": "Type.STRING"
-                },
-                "purpose": {
-                  "type": "Type.STRING"
-                },
-                "learning_curve": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          },
-          "project_phases": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "phase_name": {
-                  "type": "Type.STRING"
-                },
-                "description": {
-                  "type": "Type.STRING"
-                },
-                "estimated_time": {
-                  "type": "Type.STRING"
-                },
-                "key_skills": {
-                  "type": "Type.ARRAY",
-                  "items": {
-                    "type": "Type.STRING"
-                  }
-                }
-              }
-            }
-          },
-          "learning_milestones": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "potential_challenges": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "challenge": {
-                  "type": "Type.STRING"
-                },
-                "preparation": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "id": "error_explanation",
-      "name": "Error Message Explanation",
-      "description": "Explain error messages in plain English and provide solutions",
-      "category": "error-help",
-      "prompt": "Explain the provided error message in simple terms that a beginner can understand. Break down what the error means, why it occurs, and provide step-by-step solutions. Include tips on how to prevent similar errors in the future.",
-      "tags": ["errors", "troubleshooting", "explanation", "debugging"],
-      "responseSchema": {
-        "type": "Type.OBJECT",
-        "properties": {
-          "error_type": {
-            "type": "Type.STRING"
-          },
-          "plain_english_explanation": {
-            "type": "Type.STRING"
-          },
-          "common_causes": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "solutions": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "solution": {
-                  "type": "Type.STRING"
-                },
-                "steps": {
-                  "type": "Type.ARRAY",
-                  "items": {
-                    "type": "Type.STRING"
-                  }
-                }
-              }
-            }
-          },
-          "prevention_tips": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "related_concepts": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          }
-        }
-      }
-    },
-    {
-      "id": "best_practices_guide",
-      "name": "Best Practices Guide",
-      "description": "Provide best practices guidance for specific programming topics",
-      "category": "best-practices",
-      "prompt": "Provide comprehensive best practices guidance for the requested programming topic. Explain why these practices matter, show good and bad examples, and help developers understand the reasoning behind industry standards.",
-      "tags": ["best-practices", "standards", "clean-code", "professional-development"],
-      "responseSchema": {
-        "type": "Type.OBJECT",
-        "properties": {
-          "topic": {
-            "type": "Type.STRING"
-          },
-          "core_principles": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "principle": {
-                  "type": "Type.STRING"
-                },
-                "explanation": {
-                  "type": "Type.STRING"
-                },
-                "why_it_matters": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          },
-          "good_examples": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "example_title": {
-                  "type": "Type.STRING"
-                },
-                "code": {
-                  "type": "Type.STRING"
-                },
-                "explanation": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          },
-          "bad_examples": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.OBJECT",
-              "properties": {
-                "example_title": {
-                  "type": "Type.STRING"
-                },
-                "code": {
-                  "type": "Type.STRING"
-                },
-                "why_its_bad": {
-                  "type": "Type.STRING"
-                }
-              }
-            }
-          },
-          "common_mistakes": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "resources_for_learning": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
+          "test_successful": {
+            "type": "Type.BOOLEAN"
           }
         }
       }
     }
   ],
   "metadata": {
-    "version": "2.0",
-    "created_at": "2025-06-30T12:00:00Z",
-    "updated_at": "2025-06-30T14:30:00Z",
-    "total_prompts": 8,
+    "version": "1.1",
+    "created_at": "2025-07-04T16:30:00Z",
+    "updated_at": "2025-07-04T18:00:00Z",
+    "total_prompts": 5,
     "categories": [
-      "programming",
-      "code-review", 
-      "education",
-      "debugging",
-      "flashcards",
-      "project-planning",
-      "error-help",
-      "best-practices"
-    ]
+      "helper",
+      "trainer",
+      "test"
+    ],
+    "description": "Prompts for DuggyBuggy Helper and Trainer modes with strict brevity requirements"
   }
 }
