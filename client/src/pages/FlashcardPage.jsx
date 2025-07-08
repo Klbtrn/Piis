@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import FlashcardColumn from "@/components/FlashcardColumn";
 import { Button } from "@/components/ui/button";
+import { getLevelNumber } from "@/lib/utils";
 
 function Input({ value, onChange, placeholder, className }) {
   return (
@@ -32,6 +33,20 @@ export default function FlashcardPage() {
         card.prompt.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
+  // Level- und Fortschrittsberechnung
+  const doneCount = flashcards.filter((c) => c.status === "Done").length;
+  const level = getLevelNumber(doneCount);
+  // Berechne, wie viele Flashcards für das aktuelle Level benötigt wurden
+  let sum = 0, needed = 1;
+  for (let i = 0; i < level; i++) {
+    sum += needed;
+    needed *= 2;
+  }
+  // needed ist jetzt die Anzahl, die für das nächste Level gebraucht wird
+  // sum ist die Gesamtanzahl, die für das aktuelle Level bereits abgeschlossen wurde
+  const progressInLevel = doneCount - sum;
+  const neededForNext = needed;
+
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900 text-white">
       <Navbar />
@@ -48,11 +63,14 @@ export default function FlashcardPage() {
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center gap-2 bg-zinc-800 border border-purple-600 px-4 py-1 rounded-full text-sm">
-              <span className="text-purple-400 font-semibold">LEVEL 7</span>
+              <span className="text-purple-400 font-semibold">LEVEL {level}</span>
               <div className="w-24 h-2 bg-purple-900 rounded-full overflow-hidden">
-                <div className="w-10/12 h-full bg-purple-400" />
+                <div
+                  className="h-full bg-purple-400 transition-all"
+                  style={{ width: `${Math.max(0, Math.min(1, neededForNext ? progressInLevel / neededForNext : 0)) * 100}%` }}
+                />
               </div>
-              <span className="text-white text-xs">10/12</span>
+              <span className="text-white text-xs">{progressInLevel}/{neededForNext}</span>
             </div>
             <Button
               variant="outline"
