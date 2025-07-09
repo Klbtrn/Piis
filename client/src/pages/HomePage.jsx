@@ -43,6 +43,7 @@ export default function HomePage() {
   const [showGenerateFlashcard, setShowGenerateFlashcard] = useState(false);
   const [helperMessages, setHelperMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [codeHintContent, setCodeHintContent] = useState(""); // Für den Code-Hint-Editor
   const editorRef = useRef(null);
 
   // Modernes lila Farbschema und Glassmorphism-Styles
@@ -237,6 +238,8 @@ export default function HomePage() {
         });
 
         setShowHints({ text: false, code: false });
+        setHintClicked({ text: false, code: false }); // Buttons wieder aktivieren
+        setCodeHintContent(""); // Code-Hint-Editor leeren
       }, 1500);
     } catch (error) {
       console.error("Re-analysis failed:", error);
@@ -258,13 +261,14 @@ export default function HomePage() {
       type === "text" ? helperSession.textHint : helperSession.codeHint;
     setShowHints((prev) => ({ ...prev, [type]: true }));
     setHintClicked((prev) => ({ ...prev, [type]: true }));
-    addHelperMessage({
-      text:
-        type === "text"
-          ? `💡 Text Hint: ${hint}`
-          : `🔧 Code Hint:\n\`\`\`\n${hint}\n\`\`\``,
-      type: "hint",
-    });
+    if (type === "text") {
+      addHelperMessage({
+        text: `💡 Text Hint: ${hint}`,
+        type: "hint",
+      });
+    } else if (type === "code") {
+      setCodeHintContent(hint || "");
+    }
   };
 
   const handleShowSolution = () => {
@@ -330,6 +334,7 @@ export default function HomePage() {
     setShowGenerateFlashcard(false);
     setHelperMessages([]);
     setEditorContent("");
+    setCodeHintContent("");
   };
 
   useEffect(() => {
@@ -703,6 +708,25 @@ export default function HomePage() {
               onChange={setEditorContent}
             />
           </div>
+
+          {/* Code-Hint Editor (nur sichtbar, wenn codeHintContent vorhanden) */}
+          {codeHintContent && (
+            <div className="mt-4">
+              <label className="block mb-2 text-sm font-semibold text-fuchsia-300">
+                Code Hint
+              </label>
+              <div className="rounded-2xl overflow-hidden border border-fuchsia-700/40 shadow-lg bg-zinc-900/60">
+                <Editor
+                  language={language}
+                  value={codeHintContent}
+                  onChange={() => {}}
+                  readOnly={true}
+                  options={{ readOnly: true, minimap: { enabled: false } }}
+                  height="180px"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-4 mt-2">
