@@ -600,49 +600,7 @@ export default function HomePage() {
               </div>
             )}
 
-            {message.showControls && helperSession && (
-              <div className="flex flex-wrap gap-2 pt-2 border-t border-purple-800/50">
-                {!showHints.text && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleShowHint("text")}
-                    className="bg-blue-900/40 border-blue-600 text-blue-300 hover:bg-blue-800/40"
-                  >
-                    💡 Text Hint
-                  </Button>
-                )}
-                {!showHints.code && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleShowHint("code")}
-                    className="bg-green-900/40 border-green-600 text-green-300 hover:bg-green-800/40"
-                  >
-                    🔧 Code Hint
-                  </Button>
-                )}
-                {!showSolution && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleShowSolution}
-                    className="bg-orange-900/40 border-orange-600 text-orange-300 hover:bg-orange-800/40"
-                  >
-                    🎯 Solution
-                  </Button>
-                )}
-                {showGenerateFlashcard && (
-                  <Button
-                    size="sm"
-                    onClick={handleGenerateFlashcard}
-                    className="bg-purple-600 text-white hover:bg-purple-700"
-                  >
-                    🎴 Generate Flashcard
-                  </Button>
-                )}
-              </div>
-            )}
+            {/* Die Hint-Buttons sind jetzt oben, daher hier entfernt */}
           </div>
         </div>
       </motion.div>
@@ -700,17 +658,37 @@ export default function HomePage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Mode Indicators */}
-            <div className="flex items-center space-x-3">
-              {isHelperMode && (
-                <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-700/80 to-fuchsia-700/80 px-3 py-1 rounded-full shadow animate-pulse">
-                  <span className="w-3 h-3 bg-fuchsia-400 rounded-full" />
-                  <span className="text-xs text-fuchsia-100 font-semibold">
-                    Helper Mode
-                  </span>
-                </div>
-              )}
-            </div>
+            {/* HINT BUTTONS: Sichtbar in Helper Mode */}
+            {isHelperMode && (
+              <div className="flex items-center gap-2 ml-4">
+                <Button
+                  variant="outline"
+                  onClick={() => handleShowHint("text")}
+                  className="border-purple-400 text-purple-200 hover:bg-purple-900/30 rounded-full px-4 py-1 text-xs font-semibold"
+                >
+                  💡 Text Hint
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleShowHint("code")}
+                  className="border-fuchsia-400 text-fuchsia-200 hover:bg-fuchsia-900/30 rounded-full px-4 py-1 text-xs font-semibold"
+                >
+                  🔧 Code Hint
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Mode Indicator */}
+          <div className="flex items-center space-x-3">
+            {isHelperMode && (
+              <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-700/80 to-fuchsia-700/80 px-3 py-1 rounded-full shadow animate-pulse">
+                <span className="w-3 h-3 bg-fuchsia-400 rounded-full" />
+                <span className="text-xs text-fuchsia-100 font-semibold">
+                  Helper Mode
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Editor */}
