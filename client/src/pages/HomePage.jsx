@@ -249,13 +249,15 @@ export default function HomePage() {
     }
   };
 
+  // Hint-Buttons: Klick-Status merken
+  const [hintClicked, setHintClicked] = useState({ text: false, code: false });
   const handleShowHint = (type) => {
     if (!helperSession) return;
-
+    if (hintClicked[type]) return; // Doppelklick verhindern
     const hint =
       type === "text" ? helperSession.textHint : helperSession.codeHint;
     setShowHints((prev) => ({ ...prev, [type]: true }));
-
+    setHintClicked((prev) => ({ ...prev, [type]: true }));
     addHelperMessage({
       text:
         type === "text"
@@ -323,6 +325,7 @@ export default function HomePage() {
     setHelperSession(null);
     setIsHelperMode(false);
     setShowHints({ text: false, code: false });
+    setHintClicked({ text: false, code: false });
     setShowSolution(false);
     setShowGenerateFlashcard(false);
     setHelperMessages([]);
@@ -377,7 +380,7 @@ export default function HomePage() {
             const promptsWork = await testPromptsEndpoint(successUrl);
             console.log("Prompts endpoint test result:", promptsWork);
 
-            await makeTestApiCall(successUrl);
+            //await makeTestApiCall(successUrl);
 
             setTimeout(() => {
               setShowTyping3(false);
@@ -659,24 +662,24 @@ export default function HomePage() {
             </DropdownMenu>
 
             {/* HINT BUTTONS: Sichtbar in Helper Mode */}
-            {isHelperMode && (
-              <div className="flex items-center gap-2 ml-4">
-                <Button
-                  variant="outline"
-                  onClick={() => handleShowHint("text")}
-                  className="border-purple-700 text-purple-200 hover:bg-purple-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
-                >
-                  💡 Text Hint
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleShowHint("code")}
-                  className="border-fuchsia-700 text-fuchsia-200 hover:bg-fuchsia-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
-                >
-                  🔧 Code Hint
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center gap-2 ml-4">
+              <Button
+                variant="outline"
+                onClick={() => isHelperMode && handleShowHint("text")}
+                className="border-purple-700 text-purple-200 hover:bg-purple-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
+                disabled={!isHelperMode || hintClicked.text}
+              >
+                💡 Text Hint
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => isHelperMode && handleShowHint("code")}
+                className="border-fuchsia-700 text-fuchsia-200 hover:bg-fuchsia-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
+                disabled={!isHelperMode || hintClicked.code}
+              >
+                🔧 Code Hint
+              </Button>
+            </div>
           </div>
 
           {/* Mode Indicator */}
@@ -705,7 +708,11 @@ export default function HomePage() {
           <div className="flex justify-end gap-4 mt-2">
             <Button
               onClick={isHelperMode ? handleReAnalysis : handleInitialAnalysis}
-              disabled={isAnalyzing || !apiBaseUrl}
+              disabled={
+                isAnalyzing ||
+                !apiBaseUrl ||
+                (isHelperMode && (!hintClicked.text || !hintClicked.code))
+              }
               className="bg-gradient-to-r from-purple-700 via-fuchsia-700 to-purple-500 text-white font-semibold px-8 py-2 rounded-full shadow-xl hover:scale-105 hover:shadow-fuchsia-700/30 transition-all disabled:opacity-50"
             >
               {isAnalyzing
