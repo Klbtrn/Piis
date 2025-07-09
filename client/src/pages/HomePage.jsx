@@ -472,7 +472,7 @@ export default function HomePage() {
             <div className="pt-2 mt-2 border-t border-gray-600">
               <button
                 onClick={retryTest}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                className="bg-purple-800 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs transition-colors border border-fuchsia-700/40 shadow-sm"
               >
                 🔄 Retry Test
               </button>
@@ -564,7 +564,7 @@ export default function HomePage() {
           alt="Duggy"
           className="w-8 h-8 mt-3 scale-x-[-1]"
         />
-        <div className="bg-purple-900/40 p-4 rounded-xl relative before:content-[''] before:absolute before:top-4 before:-left-2 before:border-8 before:border-transparent before:border-r-purple-900/40">
+        <div className="bg-zinc-900/70 border border-purple-900/30 p-4 rounded-xl relative before:content-[''] before:absolute before:top-4 before:-left-2 before:border-8 before:border-transparent before:border-r-purple-900/40">
           <div className="space-y-3">
             <p className="leading-relaxed text-left whitespace-pre-line">
               {message.text}
@@ -608,7 +608,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-purple-950 via-purple-900 to-zinc-900 text-white relative overflow-x-hidden">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#18181b] via-[#232136] to-zinc-900 text-white relative overflow-x-hidden">
       {/* Navigation */}
       <Navbar />
 
@@ -623,7 +623,7 @@ export default function HomePage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className={`flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r ${accent} shadow-md border border-purple-400/60 hover:scale-105 transition-all`}
+                  className={`flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r ${accent} shadow-md border border-purple-700/60 hover:scale-105 hover:shadow-fuchsia-700/30 transition-all`}
                 >
                   <img
                     src={getLanguageLabel().logo}
@@ -636,7 +636,7 @@ export default function HomePage() {
                   <ChevronDown className="w-4 h-4 text-purple-200" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-zinc-900 border border-purple-700 text-white">
+              <DropdownMenuContent className="bg-zinc-900 border border-purple-800 text-white">
                 <DropdownMenuItem onClick={() => setLanguage("python")}>
                   {" "}
                   <img
@@ -664,14 +664,14 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   onClick={() => handleShowHint("text")}
-                  className="border-purple-400 text-purple-200 hover:bg-purple-900/30 rounded-full px-4 py-1 text-xs font-semibold"
+                  className="border-purple-700 text-purple-200 hover:bg-purple-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
                 >
                   💡 Text Hint
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => handleShowHint("code")}
-                  className="border-fuchsia-400 text-fuchsia-200 hover:bg-fuchsia-900/30 rounded-full px-4 py-1 text-xs font-semibold"
+                  className="border-fuchsia-700 text-fuchsia-200 hover:bg-fuchsia-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
                 >
                   🔧 Code Hint
                 </Button>
@@ -682,7 +682,7 @@ export default function HomePage() {
           {/* Mode Indicator */}
           <div className="flex items-center space-x-3">
             {isHelperMode && (
-              <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-700/80 to-fuchsia-700/80 px-3 py-1 rounded-full shadow animate-pulse">
+              <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-900/80 to-fuchsia-900/80 px-3 py-1 rounded-full shadow animate-pulse border border-fuchsia-700/40">
                 <span className="w-3 h-3 bg-fuchsia-400 rounded-full" />
                 <span className="text-xs text-fuchsia-100 font-semibold">
                   Helper Mode
@@ -692,7 +692,7 @@ export default function HomePage() {
           </div>
 
           {/* Editor */}
-          <div className="flex-grow rounded-2xl overflow-hidden border border-purple-400/20 shadow-lg">
+          <div className="flex-grow rounded-2xl overflow-hidden border border-purple-800/30 shadow-lg">
             <Editor
               language={language}
               ref={editorRef}
@@ -706,7 +706,7 @@ export default function HomePage() {
             <Button
               onClick={isHelperMode ? handleReAnalysis : handleInitialAnalysis}
               disabled={isAnalyzing || !apiBaseUrl}
-              className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-8 py-2 rounded-full shadow-lg hover:scale-105 transition-all disabled:opacity-50"
+              className="bg-gradient-to-r from-purple-700 via-fuchsia-700 to-purple-500 text-white font-semibold px-8 py-2 rounded-full shadow-xl hover:scale-105 hover:shadow-fuchsia-700/30 transition-all disabled:opacity-50"
             >
               {isAnalyzing
                 ? "Analyzing..."
@@ -717,7 +717,7 @@ export default function HomePage() {
             <Button
               variant="outline"
               onClick={resetHelper}
-              className="border-fuchsia-400 text-fuchsia-300 hover:bg-fuchsia-900/30 rounded-full"
+              className="border-fuchsia-700 text-fuchsia-300 hover:bg-fuchsia-900/40 rounded-full"
             >
               Reset
             </Button>
@@ -736,7 +736,7 @@ export default function HomePage() {
                   alt="Duggy"
                   className="w-9 h-9 mt-1 scale-x-[-1] drop-shadow-lg"
                 />
-                <div className="bg-gradient-to-r from-purple-800/60 to-fuchsia-800/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow">
+                <div className="bg-gradient-to-r from-zinc-800/80 to-purple-900/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow border border-fuchsia-800/30">
                   Duggy is typing...
                 </div>
               </div>
@@ -755,7 +755,7 @@ export default function HomePage() {
                   className="w-9 h-9 mt-3 scale-x-[-1] drop-shadow-lg"
                 />
                 <div
-                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-400/30 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
+                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-800/40 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
                 >
                   <p className="leading-relaxed text-left text-lg font-medium">
                     Hi, welcome to{" "}
@@ -779,7 +779,7 @@ export default function HomePage() {
                   alt="Duggy"
                   className="w-9 h-9 mt-1 scale-x-[-1] drop-shadow-lg"
                 />
-                <div className="bg-gradient-to-r from-purple-800/60 to-fuchsia-800/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow">
+                <div className="bg-gradient-to-r from-zinc-800/80 to-purple-900/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow border border-fuchsia-800/30">
                   Duggy is typing...
                 </div>
               </div>
@@ -798,7 +798,7 @@ export default function HomePage() {
                   className="w-9 h-9 mt-3 scale-x-[-1] drop-shadow-lg"
                 />
                 <div
-                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-400/30 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
+                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-800/40 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
                 >
                   {isLoading ? (
                     <p className="leading-relaxed text-left text-lg font-medium">
@@ -855,7 +855,7 @@ export default function HomePage() {
                   alt="Duggy"
                   className="w-9 h-9 mt-1 scale-x-[-1] drop-shadow-lg"
                 />
-                <div className="bg-gradient-to-r from-purple-800/60 to-fuchsia-800/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow">
+                <div className="bg-gradient-to-r from-zinc-800/80 to-purple-900/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow border border-fuchsia-800/30">
                   Running test_prompt to verify AI capabilities...
                 </div>
               </div>
@@ -874,7 +874,7 @@ export default function HomePage() {
                   className="w-9 h-9 mt-3 scale-x-[-1] drop-shadow-lg"
                 />
                 <div
-                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-400/30 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
+                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-800/40 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
                 >
                   {renderTestApiResponse()}
                   <div className="mt-4 pt-3 border-t border-purple-800/50">
