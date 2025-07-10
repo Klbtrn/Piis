@@ -209,6 +209,10 @@ export default function HomePage() {
   const handleReAnalysis = async () => {
     if (!helperSession) return;
 
+    // Solution-Button und Hint-Buttons sofort deaktivieren
+    setHintClicked({ text: false, code: false });
+    setShowHints({ text: false, code: false });
+
     setIsAnalyzing(true);
     setIsTyping(true);
 
@@ -237,8 +241,8 @@ export default function HomePage() {
           showControls: true,
         });
 
+        setHintClicked({ text: false, code: false });
         setShowHints({ text: false, code: false });
-        setHintClicked({ text: false, code: false }); // Buttons wieder aktivieren
         setCodeHintContent(""); // Code-Hint-Editor leeren
         setShowSolution(false); // Lösungsbutton ausblenden
       }, 1500);
@@ -562,24 +566,30 @@ export default function HomePage() {
     return (
       <motion.div
         key={index}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="flex items-start gap-2"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.35, type: "spring", bounce: 0.25 }}
+        className="flex items-start gap-3"
       >
         <img
           src={duggyLogo}
           alt="Duggy"
-          className="w-8 h-8 mt-3 scale-x-[-1]"
+          className="w-10 h-10 mt-2 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
         />
-        <div className="bg-zinc-900/70 border border-purple-900/30 p-4 rounded-xl relative before:content-[''] before:absolute before:top-4 before:-left-2 before:border-8 before:border-transparent before:border-r-purple-900/40">
+        <div
+          className={`${cardBg} relative p-5 rounded-3xl shadow-2xl border border-purple-800/40 min-w-[120px] max-w-xl before:content-[''] before:absolute before:top-6 before:-left-4 before:border-8 before:border-transparent before:border-r-fuchsia-700/40`}
+        >
+          {/* Badge */}
+          <span className="absolute -top-3 left-4 bg-fuchsia-700/80 text-xs text-white px-3 py-0.5 rounded-full shadow border border-fuchsia-400/30 select-none">
+            Duggy
+          </span>
           <div className="space-y-3">
-            <p className="leading-relaxed text-left whitespace-pre-line">
+            <p className="leading-relaxed text-left whitespace-pre-line text-base">
               {message.text}
             </p>
 
             {message.improvements && message.improvements.length > 0 && (
-              <div className="bg-green-900/30 p-2 rounded">
+              <div className="bg-green-900/30 p-2 rounded-xl">
                 <p className="text-green-300 font-medium text-sm">
                   ✅ Great improvements:
                 </p>
@@ -594,7 +604,7 @@ export default function HomePage() {
             )}
 
             {message.issues && message.issues.length > 0 && (
-              <div className="bg-yellow-900/30 p-2 rounded">
+              <div className="bg-yellow-900/30 p-2 rounded-xl">
                 <p className="text-yellow-300 font-medium text-sm">
                   🔍 Areas to work on:
                 </p>
@@ -607,8 +617,6 @@ export default function HomePage() {
                 </ul>
               </div>
             )}
-
-            {/* Die Hint-Buttons sind jetzt oben, daher hier entfernt */}
           </div>
         </div>
       </motion.div>
@@ -621,10 +629,10 @@ export default function HomePage() {
       <Navbar />
 
       {/* Main Content */}
-      <main className="p-8 pt-4 h-[calc(100vh-80px)] flex flex-col md:flex-row gap-8 max-w-7xl mx-auto">
+      <main className="p-8 pt-4 h-[calc(100vh-80px)] flex flex-col md:flex-row gap-8 max-w-[1800px] mx-auto items-stretch">
         {/* Editor Panel */}
         <section
-          className={`md:w-1/2 w-full flex flex-col gap-6 ${glassBg} rounded-3xl p-8 transition-all duration-300`}
+          className={`md:w-[60%] w-full flex flex-col gap-6 ${glassBg} rounded-3xl p-8 transition-all duration-300 h-full`}
         >
           <div className="flex justify-between items-center mb-2">
             {/* Language Dropdown */}
@@ -729,8 +737,8 @@ export default function HomePage() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-4 mt-2 relative">
-            {/* Solution Button unten links, immer sichtbar aber ggf. deaktiviert */}
+          <div className="flex justify-end gap-4 mt-2">
+            {/* Solution Button jetzt links und etwas kleiner */}
             {isHelperMode && !showSolution && (
               <button
                 onClick={
@@ -739,13 +747,13 @@ export default function HomePage() {
                     : undefined
                 }
                 disabled={!(hintClicked.text && hintClicked.code)}
-                className={`absolute left-0 bottom-0 mb-2 ml-2 px-6 py-2 rounded-full font-bold text-white bg-gradient-to-r from-fuchsia-600 via-purple-500 to-fuchsia-400 shadow-2xl border-2 border-fuchsia-300 transition-all z-20 ${
+                className={`order-first px-4 py-1.5 rounded-full font-bold text-white text-sm bg-gradient-to-r from-fuchsia-600 via-purple-500 to-fuchsia-400 shadow-2xl border-2 border-fuchsia-300 transition-all z-20 ${
                   hintClicked.text && hintClicked.code
                     ? "animate-pulse hover:scale-105 hover:shadow-fuchsia-500/50"
                     : "opacity-50 cursor-not-allowed"
                 }`}
                 style={{
-                  boxShadow: "0 0 16px 4px #e879f9, 0 0 32px 8px #a21caf",
+                  boxShadow: "0 0 8px 2px #e879f9, 0 0 16px 4px #a21caf",
                 }}
               >
                 🎯 Solution
@@ -798,166 +806,221 @@ export default function HomePage() {
 
         {/* Chat Panel */}
         <section
-          className={`md:w-1/2 w-full flex flex-col gap-4 max-h-[80vh] overflow-y-auto ${glassBg} rounded-3xl p-8 transition-all duration-300`}
+          className={`md:w-[40%] w-full flex flex-col gap-4 h-full overflow-y-auto ${glassBg} rounded-3xl p-8 transition-all duration-300`}
         >
           <div className="space-y-6">
             {showTyping1 && (
-              <div className="flex items-start gap-3">
-                <img
-                  src={duggyLogo}
-                  alt="Duggy"
-                  className="w-9 h-9 mt-1 scale-x-[-1] drop-shadow-lg"
-                />
-                <div className="bg-gradient-to-r from-zinc-800/80 to-purple-900/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow border border-fuchsia-800/30">
-                  Duggy is typing...
-                </div>
-              </div>
-            )}
-
-            {showMessage1 && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.35, type: "spring", bounce: 0.25 }}
                 className="flex items-start gap-3"
               >
                 <img
                   src={duggyLogo}
                   alt="Duggy"
-                  className="w-9 h-9 mt-3 scale-x-[-1] drop-shadow-lg"
+                  className="w-10 h-10 mt-2 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
                 />
                 <div
-                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-800/40 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
+                  className={`${cardBg} relative p-5 rounded-3xl shadow-2xl border border-purple-800/40 min-w-[120px] max-w-xl before:content-[''] before:absolute before:top-6 before:-left-4 before:border-8 before:border-transparent before:border-r-fuchsia-700/40 animate-pulse`}
                 >
-                  <p className="leading-relaxed text-left text-lg font-medium">
-                    Hi, welcome to{" "}
-                    <span className="text-fuchsia-300 font-bold">
-                      DuggyBuggy
-                    </span>
-                    ! 👋
-                    <br />
-                    I'm Duggy, your friendly programming mentor.
-                    <br />
-                    Let me check my systems...
-                  </p>
+                  <span className="absolute -top-3 left-4 bg-fuchsia-700/80 text-xs text-white px-3 py-0.5 rounded-full shadow border border-fuchsia-400/30 select-none">
+                    Duggy
+                  </span>
+                  <div className="italic text-base text-fuchsia-200">
+                    Duggy is typing...
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {showMessage1 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.35, type: "spring", bounce: 0.25 }}
+                className="flex items-start gap-3"
+              >
+                <img
+                  src={duggyLogo}
+                  alt="Duggy"
+                  className="w-10 h-10 mt-2 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
+                />
+                <div
+                  className={`${cardBg} relative p-5 rounded-3xl shadow-2xl border border-purple-800/40 min-w-[120px] max-w-xl before:content-[''] before:absolute before:top-6 before:-left-4 before:border-8 before:border-transparent before:border-r-fuchsia-700/40`}
+                >
+                  <span className="absolute -top-3 left-4 bg-fuchsia-700/80 text-xs text-white px-3 py-0.5 rounded-full shadow border border-fuchsia-400/30 select-none">
+                    Duggy
+                  </span>
+                  <div className="space-y-3">
+                    <p className="leading-relaxed text-left text-lg font-medium">
+                      Hi, welcome to{" "}
+                      <span className="text-fuchsia-300 font-bold">
+                        DuggyBuggy
+                      </span>
+                      ! 👋
+                      <br />
+                      I'm Duggy, your friendly programming mentor.
+                      <br />
+                      Let me check my systems...
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             )}
 
             {showTyping2 && (
-              <div className="flex items-start gap-3">
-                <img
-                  src={duggyLogo}
-                  alt="Duggy"
-                  className="w-9 h-9 mt-1 scale-x-[-1] drop-shadow-lg"
-                />
-                <div className="bg-gradient-to-r from-zinc-800/80 to-purple-900/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow border border-fuchsia-800/30">
-                  Duggy is typing...
-                </div>
-              </div>
-            )}
-
-            {showMessage2 && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.35, type: "spring", bounce: 0.25 }}
                 className="flex items-start gap-3"
               >
                 <img
                   src={duggyLogo}
                   alt="Duggy"
-                  className="w-9 h-9 mt-3 scale-x-[-1] drop-shadow-lg"
+                  className="w-10 h-10 mt-2 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
                 />
                 <div
-                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-800/40 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
+                  className={`${cardBg} relative p-5 rounded-3xl shadow-2xl border border-purple-800/40 min-w-[120px] max-w-xl before:content-[''] before:absolute before:top-6 before:-left-4 before:border-8 before:border-transparent before:border-r-fuchsia-700/40 animate-pulse`}
                 >
-                  {isLoading ? (
-                    <p className="leading-relaxed text-left text-lg font-medium">
-                      Connecting to my learning modules...
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      <div>
-                        <p className="leading-relaxed text-left text-lg font-medium">
-                          <span className="text-green-400">
-                            ✅ System Status:
-                          </span>{" "}
-                          {apiData?.message || "Connected successfully!"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-fuchsia-300 font-semibold mb-2">
-                          Available Learning Modes:
-                        </p>
-                        <div className="space-y-1 text-base">
-                          {apiData?.available_prompts?.map((prompt, index) => (
-                            <div
-                              key={prompt.id}
-                              className="flex items-center gap-2 text-fuchsia-100"
-                            >
-                              <span>{getCategoryEmoji(prompt.category)}</span>
-                              <span className="font-medium text-fuchsia-200">
-                                {prompt.name}
-                              </span>
-                            </div>
-                          )) || (
-                            <p className="text-red-400">
-                              No learning modes available
-                            </p>
-                          )}
+                  <span className="absolute -top-3 left-4 bg-fuchsia-700/80 text-xs text-white px-3 py-0.5 rounded-full shadow border border-fuchsia-400/30 select-none">
+                    Duggy
+                  </span>
+                  <div className="italic text-base text-fuchsia-200">
+                    Duggy is typing...
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {showMessage2 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.35, type: "spring", bounce: 0.25 }}
+                className="flex items-start gap-3"
+              >
+                <img
+                  src={duggyLogo}
+                  alt="Duggy"
+                  className="w-10 h-10 mt-2 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
+                />
+                <div
+                  className={`${cardBg} relative p-5 rounded-3xl shadow-2xl border border-purple-800/40 min-w-[120px] max-w-xl before:content-[''] before:absolute before:top-6 before:-left-4 before:border-8 before:border-transparent before:border-r-fuchsia-700/40`}
+                >
+                  <span className="absolute -top-3 left-4 bg-fuchsia-700/80 text-xs text-white px-3 py-0.5 rounded-full shadow border border-fuchsia-400/30 select-none">
+                    Duggy
+                  </span>
+                  <div className="space-y-3">
+                    {isLoading ? (
+                      <p className="leading-relaxed text-left text-lg font-medium">
+                        Connecting to my learning modules...
+                      </p>
+                    ) : (
+                      <>
+                        <div>
+                          <p className="leading-relaxed text-left text-lg font-medium">
+                            <span className="text-green-400">
+                              ✅ System Status:
+                            </span>{" "}
+                            {apiData?.message || "Connected successfully!"}
+                          </p>
                         </div>
-                      </div>
-                      <div className="pt-2 border-t border-purple-800/50">
-                        <p className="text-base leading-relaxed">
-                          Now let me test my AI capabilities using the
-                          test_prompt...
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                        <div>
+                          <p className="text-fuchsia-300 font-semibold mb-2">
+                            Available Learning Modes:
+                          </p>
+                          <div className="space-y-1 text-base">
+                            {apiData?.available_prompts?.map(
+                              (prompt, index) => (
+                                <div
+                                  key={prompt.id}
+                                  className="flex items-center gap-2 text-fuchsia-100"
+                                >
+                                  <span>
+                                    {getCategoryEmoji(prompt.category)}
+                                  </span>
+                                  <span className="font-medium text-fuchsia-200">
+                                    {prompt.name}
+                                  </span>
+                                </div>
+                              )
+                            ) || (
+                              <p className="text-red-400">
+                                No learning modes available
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="pt-2 border-t border-purple-800/50">
+                          <p className="text-base leading-relaxed">
+                            Now let me test my AI capabilities using the
+                            test_prompt...
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}
 
             {showTyping3 && (
-              <div className="flex items-start gap-3">
-                <img
-                  src={duggyLogo}
-                  alt="Duggy"
-                  className="w-9 h-9 mt-1 scale-x-[-1] drop-shadow-lg"
-                />
-                <div className="bg-gradient-to-r from-zinc-800/80 to-purple-900/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow border border-fuchsia-800/30">
-                  Running test_prompt to verify AI capabilities...
-                </div>
-              </div>
-            )}
-
-            {showMessage3 && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.35, type: "spring", bounce: 0.25 }}
                 className="flex items-start gap-3"
               >
                 <img
                   src={duggyLogo}
                   alt="Duggy"
-                  className="w-9 h-9 mt-3 scale-x-[-1] drop-shadow-lg"
+                  className="w-10 h-10 mt-2 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
                 />
                 <div
-                  className={`${cardBg} p-6 rounded-2xl shadow-xl border border-purple-800/40 relative before:content-[''] before:absolute before:top-6 before:-left-3 before:border-8 before:border-transparent before:border-r-purple-900/40`}
+                  className={`${cardBg} relative p-5 rounded-3xl shadow-2xl border border-purple-800/40 min-w-[120px] max-w-xl before:content-[''] before:absolute before:top-6 before:-left-4 before:border-8 before:border-transparent before:border-r-fuchsia-700/40 animate-pulse`}
                 >
-                  {renderTestApiResponse()}
-                  <div className="mt-4 pt-3 border-t border-purple-800/50">
-                    <p className="text-base leading-relaxed">
-                      Paste your code in the editor and click{" "}
-                      <span className="text-fuchsia-300 font-semibold">
-                        Analyze
-                      </span>{" "}
-                      to get started! I'm ready to help you learn and improve
-                      your programming skills. 🚀
-                    </p>
+                  <span className="absolute -top-3 left-4 bg-fuchsia-700/80 text-xs text-white px-3 py-0.5 rounded-full shadow border border-fuchsia-400/30 select-none">
+                    Duggy
+                  </span>
+                  <div className="italic text-base text-fuchsia-200">
+                    Running test_prompt to verify AI capabilities...
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {showMessage3 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.35, type: "spring", bounce: 0.25 }}
+                className="flex items-start gap-3"
+              >
+                <img
+                  src={duggyLogo}
+                  alt="Duggy"
+                  className="w-10 h-10 mt-2 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
+                />
+                <div
+                  className={`${cardBg} relative p-5 rounded-3xl shadow-2xl border border-purple-800/40 min-w-[120px] max-w-xl before:content-[''] before:absolute before:top-6 before:-left-4 before:border-8 before:border-transparent before:border-r-fuchsia-700/40`}
+                >
+                  <span className="absolute -top-3 left-4 bg-fuchsia-700/80 text-xs text-white px-3 py-0.5 rounded-full shadow border border-fuchsia-400/30 select-none">
+                    Duggy
+                  </span>
+                  <div className="space-y-3">
+                    {renderTestApiResponse()}
+                    <div className="pt-3 border-t border-purple-800/50">
+                      <p className="text-base leading-relaxed">
+                        Paste your code in the editor and click{" "}
+                        <span className="text-fuchsia-300 font-semibold">
+                          Analyze
+                        </span>{" "}
+                        to get started! I'm ready to help you learn and improve
+                        your programming skills. 🚀
+                      </p>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -970,16 +1033,28 @@ export default function HomePage() {
 
             {/* Typing indicator for helper mode */}
             {isTyping && (
-              <div className="flex items-start gap-3">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.35, type: "spring", bounce: 0.25 }}
+                className="flex items-start gap-3"
+              >
                 <img
                   src={duggyLogo}
                   alt="Duggy"
-                  className="w-9 h-9 mt-1 scale-x-[-1] drop-shadow-lg"
+                  className="w-10 h-10 mt-2 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
                 />
-                <div className="bg-gradient-to-r from-purple-800/60 to-fuchsia-800/60 px-5 py-3 rounded-2xl italic text-base text-fuchsia-200 animate-pulse shadow">
-                  Duggy is analyzing your code...
+                <div
+                  className={`${cardBg} relative p-5 rounded-3xl shadow-2xl border border-purple-800/40 min-w-[120px] max-w-xl before:content-[''] before:absolute before:top-6 before:-left-4 before:border-8 before:border-transparent before:border-r-fuchsia-700/40 animate-pulse`}
+                >
+                  <span className="absolute -top-3 left-4 bg-fuchsia-700/80 text-xs text-white px-3 py-0.5 rounded-full shadow border border-fuchsia-400/30 select-none">
+                    Duggy
+                  </span>
+                  <div className="italic text-base text-fuchsia-200">
+                    Duggy is analyzing your code...
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
         </section>
