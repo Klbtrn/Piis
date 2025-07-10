@@ -287,6 +287,28 @@ export default function HomePage() {
     });
   };
 
+  // Hilfsfunktion zum Erstellen eines Flashcard-Objekts aus LLM-Result
+  function buildFlashcardFromResult(result, language) {
+    return {
+      prompt: result.task_headline || "",
+      solution: result.solution || "",
+      hintText: result.text_hint || "",
+      hintCode: result.code_hint || "",
+      difficultyLevel: result.difficulty_level || "",
+      status: "Backlog",
+      task: result.task_description || "",
+      keyConcepts: result.key_concepts || [],
+      hintCount: 2,
+      hintsUsed: 0,
+      textHintUsed: false,
+      codeHintUsed: false,
+      editorContent: "",
+      language: result.programming_language || language || "",
+      duggyFeedback: "",
+      createdAt: new Date().toISOString(),
+    };
+  }
+
   const handleGenerateFlashcard = async () => {
     if (!helperSession) return;
 
@@ -307,6 +329,14 @@ export default function HomePage() {
       });
 
       const result = await response.json();
+      const flashcard = buildFlashcardFromResult(result, language);
+
+      // Flashcard an den Server schicken
+      await fetch("http://localhost:5000/api/flashcards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(flashcard),
+      });
 
       setTimeout(() => {
         setIsTyping(false);
@@ -317,7 +347,6 @@ export default function HomePage() {
           type: "success",
         });
 
-        // Here you would typically save the flashcard to your database
         console.log("Generated flashcard:", result);
       }, 1500);
     } catch (error) {
