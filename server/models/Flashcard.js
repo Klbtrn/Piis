@@ -5,6 +5,10 @@ const flashcardSchema = new mongoose.Schema({
   solution: String,
   hintText: String,
   hintCode: String,
+  difficultyLevel: {
+    type: String,
+    enum: ["beginner", "intermediate", "advanced"]
+  },
   status: {
     type: String,
     enum: ["Backlog", "Repeat", "InProgress", "Done"],
@@ -14,9 +18,10 @@ const flashcardSchema = new mongoose.Schema({
   keyConcepts: [String], // Schlüsselkonzepte, die in der Karte behandelt werden
   hintCount: Number,
   hintsUsed: Number,
-  editorContent: String, // Inhalt des Editors, der für die Karte verwendet wird
+  // Inhalt des Editors, der für die Karte verwendet wird
   textHintUsed: Boolean, // Gibt an, ob der Text-Hinweis verwendet wurde
   codeHintUsed: Boolean, // Gibt an, ob der Code-Hinweis verwendet wurde
+  editorContent: String, // Inhalt des Editors, der für die Karte verwendet wird
   language: String,
   duggyFeedback: String, //rein wertendes Feedback ohne Hint
   createdAt: {
