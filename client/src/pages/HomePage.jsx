@@ -240,6 +240,7 @@ export default function HomePage() {
         setShowHints({ text: false, code: false });
         setHintClicked({ text: false, code: false }); // Buttons wieder aktivieren
         setCodeHintContent(""); // Code-Hint-Editor leeren
+        setShowSolution(false); // Lösungsbutton ausblenden
       }, 1500);
     } catch (error) {
       console.error("Re-analysis failed:", error);
@@ -273,10 +274,9 @@ export default function HomePage() {
 
   const handleShowSolution = () => {
     if (!helperSession) return;
-
     setShowSolution(true);
     setShowGenerateFlashcard(true);
-
+    setCodeHintContent(helperSession.solution || ""); // Editor zeigt Lösung
     addHelperMessage({
       text: `Here's the complete solution:\n\n\`\`\`\n${helperSession.solution}\n\`\`\`\n\nDon't worry if you needed to see the solution - that's part of learning! 🎯`,
       type: "solution",
@@ -709,11 +709,11 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Code-Hint Editor (nur sichtbar, wenn codeHintContent vorhanden) */}
+          {/* Code-Hint Editor (zeigt Code-Hint oder Lösung, wenn vorhanden) */}
           {codeHintContent && (
             <div className="mt-4">
               <label className="block mb-2 text-sm font-semibold text-fuchsia-300">
-                Code Hint
+                {showSolution ? "Solution" : "Code Hint"}
               </label>
               <div className="rounded-2xl overflow-hidden border border-fuchsia-700/40 shadow-lg bg-zinc-900/60">
                 <Editor
@@ -729,22 +729,63 @@ export default function HomePage() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-4 mt-2">
-            <Button
-              onClick={isHelperMode ? handleReAnalysis : handleInitialAnalysis}
-              disabled={
-                isAnalyzing ||
-                !apiBaseUrl ||
-                (isHelperMode && (!hintClicked.text || !hintClicked.code))
-              }
-              className="bg-gradient-to-r from-purple-700 via-fuchsia-700 to-purple-500 text-white font-semibold px-8 py-2 rounded-full shadow-xl hover:scale-105 hover:shadow-fuchsia-700/30 transition-all disabled:opacity-50"
-            >
-              {isAnalyzing
-                ? "Analyzing..."
-                : isHelperMode
-                ? "Re-Analyze"
-                : "Analyze"}
-            </Button>
+          <div className="flex justify-end gap-4 mt-2 relative">
+            {/* Solution Button unten links, immer sichtbar aber ggf. deaktiviert */}
+            {isHelperMode && !showSolution && (
+              <button
+                onClick={
+                  hintClicked.text && hintClicked.code
+                    ? handleShowSolution
+                    : undefined
+                }
+                disabled={!(hintClicked.text && hintClicked.code)}
+                className={`absolute left-0 bottom-0 mb-2 ml-2 px-6 py-2 rounded-full font-bold text-white bg-gradient-to-r from-fuchsia-600 via-purple-500 to-fuchsia-400 shadow-2xl border-2 border-fuchsia-300 transition-all z-20 ${
+                  hintClicked.text && hintClicked.code
+                    ? "animate-pulse hover:scale-105 hover:shadow-fuchsia-500/50"
+                    : "opacity-50 cursor-not-allowed"
+                }`}
+                style={{
+                  boxShadow: "0 0 16px 4px #e879f9, 0 0 32px 8px #a21caf",
+                }}
+              >
+                🎯 Solution
+              </button>
+            )}
+            {/* Nach Klick auf Lösung: Re-Analyze deaktivieren, Flashcard-Button anzeigen */}
+            {isHelperMode && showSolution ? (
+              <>
+                <Button
+                  disabled
+                  className="bg-gradient-to-r from-purple-700 via-fuchsia-700 to-purple-500 text-white font-semibold px-8 py-2 rounded-full shadow-xl opacity-50 cursor-not-allowed"
+                >
+                  Re-Analyze
+                </Button>
+                <Button
+                  onClick={handleGenerateFlashcard}
+                  className="bg-gradient-to-r from-fuchsia-600 via-purple-500 to-fuchsia-400 text-white font-semibold px-8 py-2 rounded-full shadow-xl hover:scale-105 hover:shadow-fuchsia-500/50 transition-all animate-pulse border-2 border-fuchsia-300"
+                >
+                  Generate Flashcard
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={
+                  isHelperMode ? handleReAnalysis : handleInitialAnalysis
+                }
+                disabled={
+                  isAnalyzing ||
+                  !apiBaseUrl ||
+                  (isHelperMode && (!hintClicked.text || !hintClicked.code))
+                }
+                className="bg-gradient-to-r from-purple-700 via-fuchsia-700 to-purple-500 text-white font-semibold px-8 py-2 rounded-full shadow-xl hover:scale-105 hover:shadow-fuchsia-700/30 transition-all disabled:opacity-50"
+              >
+                {isAnalyzing
+                  ? "Analyzing..."
+                  : isHelperMode
+                  ? "Re-Analyze"
+                  : "Analyze"}
+              </Button>
+            )}
             <Button
               variant="outline"
               onClick={resetHelper}
