@@ -1082,7 +1082,7 @@ export default function HomePage() {
 
         {/* Chat Panel */}
         <section
-          className={`md:w-[40%] w-full flex flex-col gap-4 h-full overflow-y-auto ${glassBg} rounded-3xl p-8 transition-all duration-300 flex-grow`}
+          className={`md:w-[40%] w-full flex flex-col gap-4 h-full overflow-y-auto rounded-3xl p-8 transition-all duration-300 flex-grow custom-scrollbar`}
         >
           <div className="space-y-6">
             {showTyping1 && (
