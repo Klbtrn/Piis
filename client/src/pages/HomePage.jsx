@@ -21,6 +21,8 @@ import Navbar from "@/components/Navbar";
 import HelperSession from "@/lib/HelperSession";
 
 export default function HomePage() {
+  // Fokus-State für Editor
+  const [editorFocused, setEditorFocused] = useState(false);
   // State
   const [language, setLanguage] = useState("python");
   const [showTyping1, setShowTyping1] = useState(true);
@@ -725,12 +727,24 @@ export default function HomePage() {
           </div>
 
           {/* Editor */}
-          <div className="flex-grow rounded-2xl overflow-hidden border border-purple-800/30 shadow-lg">
+          <div
+            className={`flex-grow rounded-2xl overflow-hidden border-2 transition-shadow duration-200`}
+            style={{
+              borderColor: "#a21caf",
+              borderRadius: "1.5rem",
+              background: "rgba(39, 0, 56, 0.10)",
+              boxShadow: editorFocused
+                ? "0 0 12px 2px #e879f9, 0 0 24px 2px #a21caf"
+                : "none",
+            }}
+          >
             <Editor
               language={language}
               ref={editorRef}
               value={editorContent}
               onChange={setEditorContent}
+              onFocus={() => setEditorFocused(true)}
+              onBlur={() => setEditorFocused(false)}
             />
           </div>
 
@@ -740,7 +754,14 @@ export default function HomePage() {
               <label className="block mb-2 text-sm font-semibold text-fuchsia-300">
                 {showSolution ? "Solution" : "Code Hint"}
               </label>
-              <div className="rounded-2xl overflow-hidden border border-fuchsia-700/40 shadow-lg bg-zinc-900/60">
+              <div
+                className="rounded-2xl overflow-hidden border-2 bg-zinc-900/60"
+                style={{
+                  borderColor: "#a21caf",
+                  borderRadius: "1.5rem",
+                  background: "rgba(39, 0, 56, 0.15)",
+                }}
+              >
                 <Editor
                   language={language}
                   value={codeHintContent}
