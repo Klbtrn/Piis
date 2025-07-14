@@ -724,18 +724,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Mode Indicator */}
-          <div className="flex items-center space-x-3">
-            {isHelperMode && (
-              <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-900/80 to-fuchsia-900/80 px-3 py-1 rounded-full shadow animate-pulse border border-fuchsia-700/40">
-                <span className="w-3 h-3 bg-fuchsia-400 rounded-full" />
-                <span className="text-xs text-fuchsia-100 font-semibold">
-                  Helper Mode
-                </span>
-              </div>
-            )}
-          </div>
-
           {/* Editor */}
           <div className="flex-grow rounded-2xl overflow-hidden border border-purple-800/30 shadow-lg">
             <Editor
