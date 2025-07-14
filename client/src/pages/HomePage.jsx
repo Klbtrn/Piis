@@ -717,7 +717,7 @@ export default function HomePage() {
       <main className="p-8 pt-4 h-[calc(100vh-80px)] flex flex-col md:flex-row gap-8 max-w-[1800px] mx-auto items-stretch">
         {/* Editor Panel */}
         <section
-          className={`md:w-[80%] w-full flex flex-col gap-6 rounded-3xl p-8 transition-all duration-300 h-full`}
+          className={`md:w-[60%] w-full flex-shrink-0 flex flex-col gap-6 rounded-3xl p-8 transition-all duration-300 h-full`}
         >
           <div className="flex justify-between items-center mb-2">
             {/* Language Dropdown */}
@@ -792,7 +792,7 @@ export default function HomePage() {
 
           {/* Editor */}
           <div
-            className={`flex-grow rounded-2xl overflow-hidden border-2 transition-shadow duration-200 relative`}
+            className={`flex-grow rounded-2xl overflow-hidden border-2 transition-shadow duration-200 relative w-full`}
             style={{
               borderColor: "#a21caf",
               borderRadius: "1.5rem",
@@ -990,7 +990,7 @@ export default function HomePage() {
                           readOnly: true,
                           minimap: { enabled: false },
                         }}
-                        height="50vh"
+                        height="60vh"
                         className="rounded-2xl border-2"
                         style={{ borderColor: "#a21caf" }}
                       />
@@ -1071,7 +1071,7 @@ export default function HomePage() {
 
         {/* Chat Panel */}
         <section
-          className={`md:w-[40%] w-full flex flex-col gap-4 h-full overflow-y-auto ${glassBg} rounded-3xl p-8 transition-all duration-300`}
+          className={`md:w-[40%] w-full flex flex-col gap-4 h-full overflow-y-auto ${glassBg} rounded-3xl p-8 transition-all duration-300 flex-grow`}
         >
           <div className="space-y-6">
             {showTyping1 && (
