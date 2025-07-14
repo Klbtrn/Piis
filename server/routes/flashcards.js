@@ -23,6 +23,19 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET /api/flashcards/:id
+router.get("/:id", async (req, res) => {
+  try {
+    const flashcard = await Flashcard.findById(req.params.id);
+    if (!flashcard) {
+      return res.status(404).json({ error: "Flashcard nicht gefunden" });
+    }
+    res.json(flashcard);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PUT /api/flashcards/:id - Flashcard aktualisieren
 router.put("/:id", async (req, res) => {
   try {

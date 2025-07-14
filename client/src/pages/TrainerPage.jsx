@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Editor from "@/components/Editor";
@@ -16,6 +17,15 @@ export default function TrainerPage() {
   const [language, setLanguage] = useState("python");
   const [taskBoxText, setTaskBoxText] = useState(initial_task_text);
   const [duggyMessage, setDuggyMessage] = useState("Feel free to check your code when you're ready 😎");
+  const { id } = useParams();
+  const [flashcard, setFlashcard] = useState(null);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/flashcards/${id}`)
+      .then(res => res.json())
+      .then(data => setFlashcard(data))
+      .catch(err => console.error("Error fetching flashcard:", err));
+  }, [id]);
 
   const getLanguageLabel = () => {
     switch (language) {
@@ -54,7 +64,7 @@ export default function TrainerPage() {
 
           {/* Task */}
           <div className="h-[55vh] flex">
-            <Editor height="55vh" language={language} code={taskBoxText} editable={false}/>
+            <Editor height="55vh" language={language} value={flashcard?.hintCode} editable={false}/>
           </div>
 
           {/* Duggy Messages */}
