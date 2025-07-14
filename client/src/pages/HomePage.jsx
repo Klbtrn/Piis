@@ -717,7 +717,7 @@ export default function HomePage() {
       <main className="p-8 pt-4 h-[calc(100vh-80px)] flex flex-col md:flex-row gap-8 max-w-[1800px] mx-auto items-stretch">
         {/* Editor Panel */}
         <section
-          className={`md:w-[80%] w-full flex flex-col gap-6 ${glassBg} rounded-3xl p-8 transition-all duration-300 h-full`}
+          className={`md:w-[80%] w-full flex flex-col gap-6 rounded-3xl p-8 transition-all duration-300 h-full`}
         >
           <div className="flex justify-between items-center mb-2">
             {/* Language Dropdown */}
