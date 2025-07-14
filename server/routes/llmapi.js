@@ -11,7 +11,7 @@ if (!process.env.GEMINI_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const modelName = "gemini-1.5-flash-latest";
+const modelName = "gemini-2.5-flash";
 
 const SYSTEMINSTRUCTIONS = `You are DuggyBuggy, a debugging-focused programming mentor.
 
@@ -24,7 +24,7 @@ ERROR DETECTION PRIORITY:
 
 RESPONSE REQUIREMENTS:
 - text_hint: Maximum 400 characters - MUST describe the main error/mistake
-- code_hint: Maximum 800 characters - show how to fix the error
+- code_hint: Maximum 800 characters - copy and paste the code from the user input and add a comment in the lines which you found the error. USE the code-block format with triple backticks for the code.
 - problem_description: Maximum 200 characters TOTAL
 - clarification_request: Maximum 300 characters TOTAL
 - Be specific about bugs, not general advice
@@ -34,9 +34,9 @@ Your primary goal: Find and explain errors in the code.`;
 
 // Helper function to truncate long text fields
 function truncateText(text, maxLength) {
-  if (!text || typeof text !== 'string') return text;
+  if (!text || typeof text !== "string") return text;
   if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 3) + '...';
+  return text.substring(0, maxLength - 3) + "...";
 }
 
 // Helper function to clean and validate response
@@ -44,7 +44,7 @@ function cleanAndValidateResponse(responseText) {
   try {
     // First, try to parse as-is
     let parsed = JSON.parse(responseText);
-    
+
     // Truncate overly long text fields to prevent issues
     if (parsed.text_hint) {
       parsed.text_hint = truncateText(parsed.text_hint, 400);
@@ -56,10 +56,16 @@ function cleanAndValidateResponse(responseText) {
       parsed.solution = truncateText(parsed.solution, 2000);
     }
     if (parsed.problem_description) {
-      parsed.problem_description = truncateText(parsed.problem_description, 400);
+      parsed.problem_description = truncateText(
+        parsed.problem_description,
+        400
+      );
     }
     if (parsed.clarification_request) {
-      parsed.clarification_request = truncateText(parsed.clarification_request, 400);
+      parsed.clarification_request = truncateText(
+        parsed.clarification_request,
+        400
+      );
     }
     if (parsed.test_message) {
       parsed.test_message = truncateText(parsed.test_message, 200);
@@ -67,38 +73,42 @@ function cleanAndValidateResponse(responseText) {
     if (parsed.feedback_message) {
       parsed.feedback_message = truncateText(parsed.feedback_message, 500);
     }
-    
+
     return parsed;
   } catch (parseError) {
-    console.log('Initial JSON parse failed, attempting to fix...', parseError.message);
-    
+    console.log(
+      "Initial JSON parse failed, attempting to fix...",
+      parseError.message
+    );
+
     // Try to fix common JSON issues
     let fixedText = responseText;
-    
+
     // Remove any trailing incomplete JSON
-    const lastBraceIndex = fixedText.lastIndexOf('}');
+    const lastBraceIndex = fixedText.lastIndexOf("}");
     if (lastBraceIndex > 0) {
       fixedText = fixedText.substring(0, lastBraceIndex + 1);
     }
-    
+
     // Try to parse the fixed text
     try {
       let parsed = JSON.parse(fixedText);
       return cleanAndValidateResponse(JSON.stringify(parsed)); // Re-clean the fixed response
     } catch (secondError) {
-      console.log('Could not fix JSON, creating fallback response');
-      
+      console.log("Could not fix JSON, creating fallback response");
+
       // Create a fallback response that matches common schemas
       return {
         needs_clarification: true,
-        clarification_request: "I had trouble analyzing your code. Could you provide more context about what you're trying to achieve?",
+        clarification_request:
+          "I had trouble analyzing your code. Could you provide more context about what you're trying to achieve?",
         text_hint: "",
         code_hint: "",
         solution: "",
         problem_description: "",
         key_concepts: [],
         test_message: "Fallback response due to parsing error",
-        test_successful: false
+        test_successful: false,
       };
     }
   }
@@ -120,15 +130,19 @@ const convertSchema = (schema) => {
   if (typeof schema === "string") {
     return schema.replace("Type.", "");
   }
-  
+
   if (Array.isArray(schema)) {
     return schema.map(convertSchema);
   }
-  
+
   if (typeof schema === "object" && schema !== null) {
     const converted = {};
     for (const [key, value] of Object.entries(schema)) {
-      if (key === "type" && typeof value === "string" && value.startsWith("Type.")) {
+      if (
+        key === "type" &&
+        typeof value === "string" &&
+        value.startsWith("Type.")
+      ) {
         converted[key] = value.replace("Type.", "");
       } else {
         converted[key] = convertSchema(value);
@@ -136,45 +150,45 @@ const convertSchema = (schema) => {
     }
     return converted;
   }
-  
+
   return schema;
 };
 
 router.get("/", (req, res) => {
-  res.json({ 
+  res.json({
     message: `LLM API is running with model: ${modelName}`,
-    available_prompts: prompts.prompts.map(p => ({
+    available_prompts: prompts.prompts.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description,
-      category: p.category
-    }))
+      category: p.category,
+    })),
   });
 });
 
 // Get all available prompts
 router.get("/prompts", (req, res) => {
   res.json({
-    prompts: prompts.prompts.map(p => ({
+    prompts: prompts.prompts.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description,
       category: p.category,
-      tags: p.tags
+      tags: p.tags,
     })),
-    metadata: prompts.metadata
+    metadata: prompts.metadata,
   });
 });
 
 // Get specific prompt by ID
 router.get("/prompts/:id", (req, res) => {
   const promptId = req.params.id;
-  const prompt = prompts.prompts.find(p => p.id === promptId);
-  
+  const prompt = prompts.prompts.find((p) => p.id === promptId);
+
   if (!prompt) {
     return res.status(404).json({ error: "Prompt not found" });
   }
-  
+
   res.json(prompt);
 });
 
@@ -192,8 +206,8 @@ router.post("/prompt", async (req, res) => {
     }
 
     // Find the prompt by ID
-    const selectedPrompt = prompts.prompts.find(p => p.id === promptId);
-    
+    const selectedPrompt = prompts.prompts.find((p) => p.id === promptId);
+
     if (!selectedPrompt) {
       return res.status(404).json({ error: "Prompt not found" });
     }
@@ -217,10 +231,10 @@ DEBUGGING PRIORITY:
 5. If no errors found, then mention potential improvements
 
 User Input: ${userInput}`;
-    
+
     // Convert the response schema for Gemini API
     const convertedSchema = convertSchema(selectedPrompt.responseSchema);
-    
+
     console.log("Converted schema:", JSON.stringify(convertedSchema, null, 2));
 
     const model = genAI.getGenerativeModel({
@@ -242,25 +256,32 @@ User Input: ${userInput}`;
     });
 
     console.log("Received response from Gemini API");
-    
+
     const response = result.response;
     const text = response.text();
 
     // Limit log output to prevent console spam
-    console.log("Raw response text:", text.length > 500 ? text.substring(0, 500) + "..." : text);
+    console.log(
+      "Raw response text:",
+      text.length > 500 ? text.substring(0, 500) + "..." : text
+    );
 
     let parsedResponse;
     try {
       parsedResponse = cleanAndValidateResponse(text);
     } catch (parseError) {
       console.error("Error parsing response:", parseError);
-      console.error("Raw response that failed to parse:", text.substring(0, 500) + "...");
-      return res.status(500).json({ 
+      console.error(
+        "Raw response that failed to parse:",
+        text.substring(0, 500) + "..."
+      );
+      return res.status(500).json({
         error: "Failed to parse model response",
         parse_error: parseError.message,
         // Provide a basic fallback
         needs_clarification: true,
-        clarification_request: "I encountered a technical issue. Please try again."
+        clarification_request:
+          "I encountered a technical issue. Please try again.",
       });
     }
 
@@ -268,19 +289,18 @@ User Input: ${userInput}`;
 
     // Return just the parsed JSON response
     res.json(parsedResponse);
-
   } catch (error) {
     console.error("Error calling Gemini API:", error);
     console.error("Error details:", {
       name: error.name,
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
     });
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       error: "Failed to generate content from the model.",
       details: error.message,
-      error_type: error.name
+      error_type: error.name,
     });
   }
 });
