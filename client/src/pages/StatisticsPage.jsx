@@ -1,8 +1,10 @@
+
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { getLevelNumber } from "@/lib/utils";
 
 const STATUS = ["Backlog", "Repeat", "InProgress", "Done"];
 const STATUS_LABELS = {
@@ -17,18 +19,6 @@ const STATUS_COLORS = {
   InProgress: "bg-purple-500",
   Done: "bg-green-500",
 };
-
-function getLevelNumber(doneCount) {
-  let level = 0;
-  let needed = 1;
-  let sum = 0;
-  while (doneCount >= sum + needed) {
-    sum += needed;
-    needed *= 2;
-    level++;
-  }
-  return level;
-}
 
 export default function StatisticsPage() {
   const [flashcards, setFlashcards] = useState([]);

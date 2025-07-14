@@ -18,16 +18,19 @@ export default function FlashcardCard({
   hintsUsed,
   color = "border-purple-500",
 }) {
+  // Glassmorphism und modernes Card-Design wie HomePage
   return (
     <div
       className={clsx(
-        "rounded-xl border-2 p-4 bg-zinc-950 text-white flex justify-between items-start gap-2 hover:shadow-lg transition",
+        "rounded-2xl border-2 p-5 bg-gradient-to-br from-zinc-950/90 via-purple-950/80 to-zinc-900/80 text-white flex justify-between items-start gap-3 shadow-xl hover:scale-[1.02] hover:shadow-fuchsia-700/30 transition-all duration-200",
         color
       )}
     >
-      <div>
-        <h3 className="font-semibold text-sm leading-snug mb-1">{prompt}</h3>
-        <p className="text-xs text-zinc-400">
+      <div className="flex flex-col gap-1">
+        <h3 className="font-bold text-base leading-snug mb-1 text-fuchsia-200 drop-shadow">
+          {prompt}
+        </h3>
+        <p className="text-xs text-zinc-400 font-medium">
           {hintsUsed} of {hintCount} hints
         </p>
       </div>
@@ -35,7 +38,7 @@ export default function FlashcardCard({
         <img
           src={languageIcons[language.toLowerCase()]}
           alt={language}
-          className="w-5 h-5 mt-1"
+          className="w-7 h-7 mt-1 drop-shadow-lg border-2 border-fuchsia-500/40 rounded-full bg-zinc-900"
         />
       )}
     </div>

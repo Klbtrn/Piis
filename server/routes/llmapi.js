@@ -13,36 +13,96 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const modelName = "gemini-1.5-flash-latest";
 
-const SYSTEMINSTRUCTIONS = `You are DuggyBuggy, a friendly and encouraging programming mentor designed to help new software developers learn and grow. Your primary goals are:
+const SYSTEMINSTRUCTIONS = `You are DuggyBuggy, a debugging-focused programming mentor.
 
-EDUCATIONAL APPROACH:
-- Always explain concepts in beginner-friendly terms
-- Break down complex problems into smaller, manageable steps
-- Focus on teaching WHY something works, not just HOW
-- Encourage learning through understanding rather than memorization
-- Provide multiple solution approaches when possible to broaden learning
+ERROR DETECTION PRIORITY:
+- ALWAYS identify bugs, errors, and mistakes first
+- Point out syntax errors, logic errors, runtime errors
+- Identify incorrect algorithms, wrong indexing, off-by-one errors
+- Highlight missing edge cases, null checks, bounds checking
+- Focus on what's broken or incorrect, not general improvements
 
-CODE ANALYSIS PHILOSOPHY:
-- Treat every code review as a learning opportunity
-- Point out both strengths and areas for improvement
-- Explain the reasoning behind best practices
-- Connect code patterns to fundamental programming concepts
-- Help developers understand the impact of their coding decisions
+RESPONSE REQUIREMENTS:
+- text_hint: Maximum 400 characters - MUST describe the main error/mistake
+- code_hint: Maximum 800 characters - show how to fix the error
+- problem_description: Maximum 200 characters TOTAL
+- clarification_request: Maximum 300 characters TOTAL
+- Be specific about bugs, not general advice
+- Always provide valid, complete JSON responses
 
-COMMUNICATION STYLE:
-- Be supportive and encouraging, never condescending
-- Use clear, jargon-free explanations with technical terms explained
-- Provide practical examples that relate to real-world scenarios
-- Acknowledge that making mistakes is part of the learning process
-- Celebrate good practices and progress
+Your primary goal: Find and explain errors in the code.`;
 
-FLASHCARD INTEGRATION:
-- Structure explanations and hints in a way that's conducive to spaced repetition learning
-- Highlight key concepts that would benefit from flashcard review
-- Provide memorable explanations that stick with learners
-- Connect new concepts to previously learned material
+// Helper function to truncate long text fields
+function truncateText(text, maxLength) {
+  if (!text || typeof text !== 'string') return text;
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + '...';
+}
 
-Remember: Every interaction is a chance to build confidence and deepen understanding in aspiring developers.`;
+// Helper function to clean and validate response
+function cleanAndValidateResponse(responseText) {
+  try {
+    // First, try to parse as-is
+    let parsed = JSON.parse(responseText);
+    
+    // Truncate overly long text fields to prevent issues
+    if (parsed.text_hint) {
+      parsed.text_hint = truncateText(parsed.text_hint, 400);
+    }
+    if (parsed.code_hint) {
+      parsed.code_hint = truncateText(parsed.code_hint, 1000);
+    }
+    if (parsed.solution) {
+      parsed.solution = truncateText(parsed.solution, 2000);
+    }
+    if (parsed.problem_description) {
+      parsed.problem_description = truncateText(parsed.problem_description, 400);
+    }
+    if (parsed.clarification_request) {
+      parsed.clarification_request = truncateText(parsed.clarification_request, 400);
+    }
+    if (parsed.test_message) {
+      parsed.test_message = truncateText(parsed.test_message, 200);
+    }
+    if (parsed.feedback_message) {
+      parsed.feedback_message = truncateText(parsed.feedback_message, 500);
+    }
+    
+    return parsed;
+  } catch (parseError) {
+    console.log('Initial JSON parse failed, attempting to fix...', parseError.message);
+    
+    // Try to fix common JSON issues
+    let fixedText = responseText;
+    
+    // Remove any trailing incomplete JSON
+    const lastBraceIndex = fixedText.lastIndexOf('}');
+    if (lastBraceIndex > 0) {
+      fixedText = fixedText.substring(0, lastBraceIndex + 1);
+    }
+    
+    // Try to parse the fixed text
+    try {
+      let parsed = JSON.parse(fixedText);
+      return cleanAndValidateResponse(JSON.stringify(parsed)); // Re-clean the fixed response
+    } catch (secondError) {
+      console.log('Could not fix JSON, creating fallback response');
+      
+      // Create a fallback response that matches common schemas
+      return {
+        needs_clarification: true,
+        clarification_request: "I had trouble analyzing your code. Could you provide more context about what you're trying to achieve?",
+        text_hint: "",
+        code_hint: "",
+        solution: "",
+        problem_description: "",
+        key_concepts: [],
+        test_message: "Fallback response due to parsing error",
+        test_successful: false
+      };
+    }
+  }
+}
 
 // Load prompts from JSON file
 let prompts;
@@ -141,8 +201,22 @@ router.post("/prompt", async (req, res) => {
     console.log("Selected prompt:", selectedPrompt.name);
     console.log("User input:", userInput);
 
-    // Prepare the full prompt with user input
-    const fullPrompt = `${selectedPrompt.prompt}\n\nUser Input: ${userInput}`;
+    const fullPrompt = `${selectedPrompt.prompt}
+
+CRITICAL REQUIREMENTS - ERROR DETECTION FOCUS:
+- text_hint: Maximum 400 characters - MUST identify the main bug/error/mistake
+- code_hint: Maximum 800 characters - show how to fix the specific error
+- problem_description: Maximum 200 characters
+- clarification_request: Maximum 300 characters
+
+DEBUGGING PRIORITY:
+1. Look for syntax errors, logic errors, runtime errors first
+2. Check for off-by-one errors, wrong indexing, bounds issues
+3. Identify incorrect algorithms or missing edge cases
+4. Point out specific mistakes, not general improvements
+5. If no errors found, then mention potential improvements
+
+User Input: ${userInput}`;
     
     // Convert the response schema for Gemini API
     const convertedSchema = convertSchema(selectedPrompt.responseSchema);
@@ -162,7 +236,7 @@ router.post("/prompt", async (req, res) => {
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: convertedSchema,
-        maxOutputTokens: 1000,
+        maxOutputTokens: 2048,
         temperature: 0.7,
       },
     });
@@ -172,19 +246,21 @@ router.post("/prompt", async (req, res) => {
     const response = result.response;
     const text = response.text();
 
-    console.log("Raw response text:", text);
+    // Limit log output to prevent console spam
+    console.log("Raw response text:", text.length > 500 ? text.substring(0, 500) + "..." : text);
 
-    // Parse the JSON response
     let parsedResponse;
     try {
-      parsedResponse = JSON.parse(text);
+      parsedResponse = cleanAndValidateResponse(text);
     } catch (parseError) {
       console.error("Error parsing response:", parseError);
-      console.error("Raw response that failed to parse:", text);
+      console.error("Raw response that failed to parse:", text.substring(0, 500) + "...");
       return res.status(500).json({ 
         error: "Failed to parse model response",
-        raw_response: text,
-        parse_error: parseError.message
+        parse_error: parseError.message,
+        // Provide a basic fallback
+        needs_clarification: true,
+        clarification_request: "I encountered a technical issue. Please try again."
       });
     }
 
