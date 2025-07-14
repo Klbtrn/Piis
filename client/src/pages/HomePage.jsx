@@ -21,6 +21,59 @@ import Navbar from "@/components/Navbar";
 import HelperSession from "@/lib/HelperSession";
 
 export default function HomePage() {
+  // Automatische Spracherkennung
+  const [autoLanguage, setAutoLanguage] = useState(null);
+
+  // Einfache Heuristik zur Spracherkennung
+  function detectLanguage(code) {
+    if (!code) return null;
+    const pyKeywords = [
+      "def ",
+      "import ",
+      "print(",
+      "self",
+      "elif",
+      "except",
+      "lambda",
+      "#",
+      "class ",
+      "yield",
+      "None",
+      "True",
+      "False",
+    ];
+    const jsKeywords = [
+      "function ",
+      "const ",
+      "let ",
+      "var ",
+      "console.log",
+      "=>",
+      "export ",
+      "import ",
+      "class ",
+      "this",
+      "null",
+      "true",
+      "false",
+      "//",
+    ];
+    let pyScore = 0,
+      jsScore = 0;
+    pyKeywords.forEach((k) => {
+      if (code.includes(k)) pyScore++;
+    });
+    jsKeywords.forEach((k) => {
+      if (code.includes(k)) jsScore++;
+    });
+    if (pyScore > jsScore && pyScore > 0) return "python";
+    if (jsScore > pyScore && jsScore > 0) return "javascript";
+    return null;
+  }
+  // Overlay-Fullscreen für Code-Hint/Solution Editor
+  const [hintOverlayOpen, setHintOverlayOpen] = useState(false);
+  // Overlay-Fullscreen Editor
+  const [editorOverlayOpen, setEditorOverlayOpen] = useState(false);
   // Fokus-State für Editor
   const [editorFocused, setEditorFocused] = useState(false);
   // State
@@ -680,6 +733,16 @@ export default function HomePage() {
                   <span className="text-sm font-semibold text-white">
                     {getLanguageLabel().name}
                   </span>
+                  {autoLanguage && (
+                    <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-fuchsia-900/60 text-fuchsia-300 border border-fuchsia-700/40">
+                      erkannt:{" "}
+                      {autoLanguage === "python"
+                        ? "Python"
+                        : autoLanguage === "javascript"
+                        ? "JavaScript"
+                        : autoLanguage}
+                    </span>
+                  )}
                   <ChevronDown className="w-4 h-4 text-purple-200" />
                 </button>
               </DropdownMenuTrigger>
@@ -728,7 +791,7 @@ export default function HomePage() {
 
           {/* Editor */}
           <div
-            className={`flex-grow rounded-2xl overflow-hidden border-2 transition-shadow duration-200`}
+            className={`flex-grow rounded-2xl overflow-hidden border-2 transition-shadow duration-200 relative`}
             style={{
               borderColor: "#a21caf",
               borderRadius: "1.5rem",
@@ -742,20 +805,104 @@ export default function HomePage() {
               language={language}
               ref={editorRef}
               value={editorContent}
-              onChange={setEditorContent}
+              onChange={(val) => {
+                setEditorContent(val);
+                const detected = detectLanguage(val);
+                setAutoLanguage(detected);
+                if (detected && detected !== language) setLanguage(detected);
+              }}
               onFocus={() => setEditorFocused(true)}
               onBlur={() => setEditorFocused(false)}
             />
+            {/* Fullscreen-Button */}
+            <button
+              type="button"
+              title="Editor vergrößern"
+              onClick={() => setEditorOverlayOpen(true)}
+              className="absolute top-3 right-3 bg-fuchsia-700/80 hover:bg-fuchsia-600 text-white rounded-full p-2 shadow-lg z-30 transition-all"
+              style={{ fontSize: 0 }}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="4" />
+                <polyline points="9 3 9 9 3 9" />
+                <polyline points="15 21 15 15 21 15" />
+              </svg>
+            </button>
           </div>
+
+          {/* Overlay-Fullscreen Editor */}
+          {editorOverlayOpen && (
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all"
+              style={{}}
+            >
+              <div
+                className="relative w-full max-w-4xl mx-auto rounded-3xl border-2 overflow-hidden shadow-2xl"
+                style={{
+                  borderColor: "#a21caf",
+                  background: "rgba(39,0,56,0.98)",
+                  borderRadius: "1.5rem",
+                  minHeight: "60vh",
+                  maxHeight: "90vh",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                {/* Schließen-Button */}
+                <button
+                  type="button"
+                  title="Schließen"
+                  onClick={() => setEditorOverlayOpen(false)}
+                  className="absolute top-4 right-4 bg-zinc-900/80 hover:bg-fuchsia-700 text-white rounded-full p-2 shadow-lg z-50"
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+                {/* Editor im Overlay */}
+                <div className="flex-grow p-8 flex flex-col">
+                  <Editor
+                    language={language}
+                    value={editorContent}
+                    onChange={setEditorContent}
+                    height="60vh"
+                    className="rounded-2xl border-2"
+                    style={{ borderColor: "#a21caf" }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Code-Hint Editor (zeigt Code-Hint oder Lösung, wenn vorhanden) */}
           {codeHintContent && (
-            <div className="mt-4">
+            <div className="mt-4 relative">
               <label className="block mb-2 text-sm font-semibold text-fuchsia-300">
                 {showSolution ? "Solution" : "Code Hint"}
               </label>
               <div
-                className="rounded-2xl overflow-hidden border-2 bg-zinc-900/60"
+                className="rounded-2xl overflow-hidden border-2 bg-zinc-900/60 relative"
                 style={{
                   borderColor: "#a21caf",
                   borderRadius: "1.5rem",
@@ -770,7 +917,86 @@ export default function HomePage() {
                   options={{ readOnly: true, minimap: { enabled: false } }}
                   height="180px"
                 />
+                {/* Fullscreen-Button für Code-Hint/Solution Editor */}
+                <button
+                  type="button"
+                  title="Code-Hint/Solution Editor vergrößern"
+                  onClick={() => setHintOverlayOpen(true)}
+                  className="absolute top-3 right-3 bg-fuchsia-700/80 hover:bg-fuchsia-600 text-white rounded-full p-2 shadow-lg z-30 transition-all"
+                  style={{ fontSize: 0 }}
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="4" />
+                    <polyline points="9 3 9 9 3 9" />
+                    <polyline points="15 21 15 15 21 15" />
+                  </svg>
+                </button>
               </div>
+              {/* Overlay-Fullscreen für Code-Hint/Solution Editor */}
+              {hintOverlayOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all">
+                  <div
+                    className="relative w-full max-w-3xl mx-auto rounded-3xl border-2 overflow-hidden shadow-2xl"
+                    style={{
+                      borderColor: "#a21caf",
+                      background: "rgba(39,0,56,0.98)",
+                      borderRadius: "1.5rem",
+                      minHeight: "40vh",
+                      maxHeight: "80vh",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    {/* Schließen-Button */}
+                    <button
+                      type="button"
+                      title="Schließen"
+                      onClick={() => setHintOverlayOpen(false)}
+                      className="absolute top-4 right-4 bg-zinc-900/80 hover:bg-fuchsia-700 text-white rounded-full p-2 shadow-lg z-50"
+                    >
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-5 h-5"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                    {/* Editor im Overlay */}
+                    <div className="flex-grow p-8 flex flex-col">
+                      <Editor
+                        language={language}
+                        value={codeHintContent}
+                        readOnly={true}
+                        options={{
+                          readOnly: true,
+                          minimap: { enabled: false },
+                        }}
+                        height="50vh"
+                        className="rounded-2xl border-2"
+                        style={{ borderColor: "#a21caf" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
