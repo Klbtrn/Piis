@@ -336,10 +336,6 @@ export default function HomePage() {
     setShowSolution(true);
     setShowGenerateFlashcard(true);
     setCodeHintContent(helperSession.solution || ""); // Editor zeigt Lösung
-    addHelperMessage({
-      text: `Here's the complete solution:\n\n\`\`\`\n${helperSession.solution}\n\`\`\`\n\nDon't worry if you needed to see the solution - that's part of learning! 🎯`,
-      type: "solution",
-    });
   };
 
   // Hilfsfunktion zum Erstellen eines Flashcard-Objekts aus LLM-Result
@@ -1327,7 +1323,9 @@ export default function HomePage() {
                     Duggy
                   </span>
                   <div className="italic text-base text-fuchsia-200">
-                    Duggy is analyzing your code...
+                    {isHelperMode && showSolution && showGenerateFlashcard
+                      ? "Duggy is creating your flashcard..."
+                      : "Duggy is analyzing your code..."}
                   </div>
                 </div>
               </motion.div>
