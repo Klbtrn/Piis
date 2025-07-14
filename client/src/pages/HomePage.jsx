@@ -423,6 +423,7 @@ export default function HomePage() {
     setHelperMessages([]);
     setEditorContent("");
     setCodeHintContent("");
+    setAutoLanguage(null);
   };
 
   useEffect(() => {
@@ -716,7 +717,7 @@ export default function HomePage() {
       <main className="p-8 pt-4 h-[calc(100vh-80px)] flex flex-col md:flex-row gap-8 max-w-[1800px] mx-auto items-stretch">
         {/* Editor Panel */}
         <section
-          className={`md:w-[60%] w-full flex flex-col gap-6 ${glassBg} rounded-3xl p-8 transition-all duration-300 h-full`}
+          className={`md:w-[80%] w-full flex flex-col gap-6 ${glassBg} rounded-3xl p-8 transition-all duration-300 h-full`}
         >
           <div className="flex justify-between items-center mb-2">
             {/* Language Dropdown */}
@@ -904,7 +905,7 @@ export default function HomePage() {
               <div
                 className="rounded-2xl overflow-hidden border-2 bg-zinc-900/60 relative"
                 style={{
-                  borderColor: "#a21caf",
+                  borderColor: showSolution ? "#22c55e" : "#a21caf",
                   borderRadius: "1.5rem",
                   background: "rgba(39, 0, 56, 0.15)",
                 }}
