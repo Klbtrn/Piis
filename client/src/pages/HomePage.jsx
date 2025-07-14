@@ -843,46 +843,50 @@ export default function HomePage() {
 
           {/* Overlay-Fullscreen Editor */}
           {editorOverlayOpen && (
-            <div
-              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all"
-              style={{}}
-            >
-              <div
-                className="relative w-full max-w-4xl mx-auto rounded-3xl border-2 overflow-hidden shadow-2xl"
-                style={{
-                  borderColor: "#a21caf",
-                  background: "rgba(39,0,56,0.98)",
-                  borderRadius: "1.5rem",
-                  minHeight: "60vh",
-                  maxHeight: "90vh",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {/* Schließen-Button */}
-                <button
-                  type="button"
-                  title="Schließen"
-                  onClick={() => setEditorOverlayOpen(false)}
-                  className="absolute top-4 right-4 bg-zinc-900/80 hover:bg-fuchsia-700 text-white rounded-full p-2 shadow-lg z-50"
-                >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-5 h-5"
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-lg transition-all animate-fade-in">
+              <div className="relative w-full max-w-3xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-purple-900/90 via-fuchsia-900/80 to-zinc-900/90 border-2 border-fuchsia-700/40 p-0">
+                {/* Header */}
+                <div className="flex items-center justify-between px-8 pt-6 pb-2 border-b border-fuchsia-700/30">
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-6 h-6 text-fuchsia-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="4" />
+                      <polyline points="9 3 9 9 3 9" />
+                      <polyline points="15 21 15 15 21 15" />
+                    </svg>
+                    <span className="text-lg font-bold text-fuchsia-200">
+                      Editor
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    title="Schließen"
+                    onClick={() => setEditorOverlayOpen(false)}
+                    className="p-2 rounded-full bg-zinc-800/80 hover:bg-fuchsia-700 text-white transition"
                   >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-5 h-5"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
                 {/* Editor im Overlay */}
-                <div className="flex-grow p-8 flex flex-col">
+                <div className="p-8">
                   <Editor
                     language={language}
                     value={editorContent}
@@ -945,43 +949,50 @@ export default function HomePage() {
               </div>
               {/* Overlay-Fullscreen für Code-Hint/Solution Editor */}
               {hintOverlayOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all">
-                  <div
-                    className="relative w-full max-w-3xl mx-auto rounded-3xl border-2 overflow-hidden shadow-2xl"
-                    style={{
-                      borderColor: "#a21caf",
-                      background: "rgba(39,0,56,0.98)",
-                      borderRadius: "1.5rem",
-                      minHeight: "40vh",
-                      maxHeight: "80vh",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    {/* Schließen-Button */}
-                    <button
-                      type="button"
-                      title="Schließen"
-                      onClick={() => setHintOverlayOpen(false)}
-                      className="absolute top-4 right-4 bg-zinc-900/80 hover:bg-fuchsia-700 text-white rounded-full p-2 shadow-lg z-50"
-                    >
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="w-5 h-5"
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-lg transition-all animate-fade-in">
+                  <div className="relative w-full max-w-3xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-purple-900/90 via-fuchsia-900/80 to-zinc-900/90 border-2 border-fuchsia-700/40 p-0">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-8 pt-6 pb-2 border-b border-fuchsia-700/30">
+                      <div className="flex items-center gap-2">
+                        <svg
+                          className="w-6 h-6 text-fuchsia-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="4" />
+                          <polyline points="9 3 9 9 3 9" />
+                          <polyline points="15 21 15 15 21 15" />
+                        </svg>
+                        <span className="text-lg font-bold text-fuchsia-200">
+                          {showSolution ? "Solution" : "Code Hint"}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        title="Schließen"
+                        onClick={() => setHintOverlayOpen(false)}
+                        className="p-2 rounded-full bg-zinc-800/80 hover:bg-fuchsia-700 text-white transition"
                       >
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-5 h-5"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
                     {/* Editor im Overlay */}
-                    <div className="flex-grow p-8 flex flex-col">
+                    <div className="p-8">
                       <Editor
                         language={language}
                         value={codeHintContent}
