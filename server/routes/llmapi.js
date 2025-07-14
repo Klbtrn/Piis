@@ -11,7 +11,7 @@ if (!process.env.GEMINI_API_KEY) {
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const modelName = "gemini-1.5-flash-latest";
+const modelName = "gemini-2.5-flash";
 
 const SYSTEMINSTRUCTIONS = `You are DuggyBuggy, a debugging-focused programming mentor.
 
