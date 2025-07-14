@@ -844,7 +844,7 @@ export default function HomePage() {
           {/* Overlay-Fullscreen Editor */}
           {editorOverlayOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-lg transition-all animate-fade-in">
-              <div className="relative w-full max-w-3xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-purple-900/90 via-fuchsia-900/80 to-zinc-900/90 border-2 border-fuchsia-700/40 p-0">
+              <div className="relative w-full max-w-5xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-purple-900/90 via-fuchsia-900/80 to-zinc-900/90 border-2 border-fuchsia-700/40 p-0">
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 pt-6 pb-2 border-b border-fuchsia-700/30">
                   <div className="flex items-center gap-2">
@@ -950,7 +950,7 @@ export default function HomePage() {
               {/* Overlay-Fullscreen für Code-Hint/Solution Editor */}
               {hintOverlayOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-lg transition-all animate-fade-in">
-                  <div className="relative w-full max-w-3xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-purple-900/90 via-fuchsia-900/80 to-zinc-900/90 border-2 border-fuchsia-700/40 p-0">
+                  <div className="relative w-full max-w-5xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-purple-900/90 via-fuchsia-900/80 to-zinc-900/90 border-2 border-fuchsia-700/40 p-0">
                     {/* Header */}
                     <div className="flex items-center justify-between px-8 pt-6 pb-2 border-b border-fuchsia-700/30">
                       <div className="flex items-center gap-2">
