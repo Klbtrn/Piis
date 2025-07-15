@@ -13,6 +13,7 @@ const languageIcons = {
 
 export default function FlashcardCard({
   prompt,
+  task_name,
   language,
   hintCount,
   hintsUsed,
@@ -30,6 +31,9 @@ export default function FlashcardCard({
         <h3 className="font-bold text-base leading-snug mb-1 text-fuchsia-200 drop-shadow">
           {prompt}
         </h3>
+        {task_name && (
+          <p className="text-sm font-normal text-zinc-300 -mt-1">{task_name}</p>
+        )}
         <p className="text-xs text-zinc-400 font-medium">
           {hintsUsed} of {hintCount} hints
         </p>

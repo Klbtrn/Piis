@@ -33,7 +33,9 @@ export default function FlashcardColumn({ title, cards }) {
           return (
             <FlashcardCard
               key={key}
-              {...card}
+              {...card} 
+              prompt={card.task_name} // Title
+              task_name={""} // Description
               color={styleClass.split(" ")[0]}
             />
           );

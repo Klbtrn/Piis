@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const flashcardSchema = new mongoose.Schema({
   prompt: String,//Überschrift für Karte
+  task_name: String, // promt ist verwirrend, könnte ja auch die actual prompt für die Ausgabe sein, oder die prompt id
   solution: String,
   hintText: String,
   hintCode: String,

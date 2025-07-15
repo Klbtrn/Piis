@@ -1,7 +1,8 @@
 // Hilfsfunktion zum Erstellen eines Flashcard-Objekts aus LLM-Result
 export function buildFlashcardFromResult(result: any) {
   return {
-    prompt: result.task_headline || '',
+    name: result.task_name || "",
+    prompt: result.prompt || '',
     solution: result.solution || '',
     hintText: result.text_hint || '',
     hintCode: result.code_hint || '',

@@ -341,7 +341,8 @@ export default function HomePage() {
   // Hilfsfunktion zum Erstellen eines Flashcard-Objekts aus LLM-Result
   function buildFlashcardFromResult(result, language) {
     return {
-      prompt: result.task_headline || "",
+      task_name: result.task_name || "", // Use `task_name` for the main title
+      prompt: result.prompt || "",
       solution: result.solution || "",
       hintText: result.text_hint || "",
       hintCode: result.code_hint || "",
