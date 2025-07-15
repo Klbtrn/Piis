@@ -59,8 +59,11 @@ export default function FlashcardPage() {
   // Filterlogik
   const filterByStatus = (status) => {
     let filtered = flashcards.filter((card) => card.status === status);
-    filtered = filtered.filter((card) =>
-      card.prompt.toLowerCase().includes(searchTerm.toLowerCase())
+    filtered = filtered.filter(
+      (card) =>
+        (card.prompt || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (card.task_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (card.task || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
     return sortCards(filtered);
   };

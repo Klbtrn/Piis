@@ -85,6 +85,9 @@
       "responseSchema": {
         "type": "Type.OBJECT",
         "properties": {
+          "task_name": {
+            "type": "Type.STRING"
+          },
           "task_description": {
             "type": "Type.STRING"
           },

@@ -15,6 +15,7 @@ const languageIcons = {
 export default function FlashcardCard({
   _id,
   prompt,
+  task_name,
   language,
   hintCount,
   hintsUsed,
