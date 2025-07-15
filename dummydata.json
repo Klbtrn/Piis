@@ -48,5 +48,22 @@
     "language": "python",
     "hintCount": 1,
     "hintsUsed": 1
+  },
+  {
+    "prompt": "Faulty Gnome Sort Implementation",
+    "solution": "def gnome_sort(arr):\n    index = 0\n    n = len(arr)\n\n    while index < n:\n        if index == 0:\n            index += 1\n        if arr[index] >= arr[index - 1]:\n            index += 1\n        else:\n            # Tausche die Werte\n            arr[index], arr[index - 1] = arr[index - 1], arr[index]\n            index -= 1\n    return arr\n\n# Beispielverwendung\nunsorted_list = [34, 2, 78, 1, 56, 99, 23]\nsorted_list = gnome_sort(unsorted_list)\nprint(\"Sortierte Liste:\", sorted_list)",
+    "hintText": "Imagine you're sorting cards laid out on a table from left to right. If the current card is not smaller than the card to its left, you take a step forward. If it is smaller, you swap the two cards and take a step backward. You repeat this process until you've walked all the way to the right — then the list is sorted!",
+    "hintCode": "def gnome_sort(arr):\n    index = 0\n    n = len(arr)\n\n    while index < n:\n    #TODO\n\n    return arr\n\n# Beispielverwendung\nunsorted_list = [34, 2, 78, 1, 56, 99, 23]\nsorted_list = gnome_sort(unsorted_list)\nprint(\"Sortierte Liste:\", sorted_list)",
+    "difficultyLevel": "medium",
+    "status": "InProgress",
+    "task": "def gnome_sort(arr):\n    #TODO: Implement the gnome sort algorithm\n\n# Beispielverwendung\nunsorted_list = [34, 2, 78, 1, 56, 99, 23]\nsorted_list = gnome_sort(unsorted_list)\nprint(\"Sortierte Liste:\", sorted_list)",
+    "language": "python",
+    "hintCount": 1,
+    "triedCount": 1,
+    "textHintUsed": true,
+    "codeHintUsed": false,
+    "editorContent": "def gradient_descent(theta, alpha, gradient):\n    theta = theta - alpha * gradient\n    return theta\n\n# === Test cases ===\nprint(gradient_descent(0, 0.1, 1))  # Expected: -0.1\nprint(gradient_descent(1, 0.01, 0.1)) # Expected: 0.9999\n",
+    "duggyFeedback": "The general implementation looks good. But there still is an issue with the indexing.",
+    "createdAt": "2025-07-07T12:00:00Z"
   }
 ]
