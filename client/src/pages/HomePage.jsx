@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import Editor from "@/components/Editor";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Logos
 import pythonLogo from "/src/assets/python-logo.png";
@@ -21,6 +21,7 @@ import Navbar from "@/components/Navbar";
 import HelperSession from "@/lib/HelperSession";
 
 export default function HomePage() {
+  const navigate = useNavigate();
   // Automatische Spracherkennung
   const [autoLanguage, setAutoLanguage] = useState(null);
 
@@ -401,6 +402,11 @@ export default function HomePage() {
           )}\n\nYou can find it in your flashcard collection for future practice! ✨`,
           type: "success",
         });
+
+        // Nach 2 Sekunden automatisch weiterleiten
+        setTimeout(() => {
+          navigate("/flashcards");
+        }, 2000);
 
         console.log("Generated flashcard:", result);
       }, 1500);
