@@ -24,6 +24,9 @@ export default function HomePage() {
   // Automatische Spracherkennung
   const [autoLanguage, setAutoLanguage] = useState(null);
 
+  // Ref für das Chat-Panel (für automatisches Scrollen)
+  const chatPanelRef = useRef(null);
+
   // Einfache Heuristik zur Spracherkennung
   function detectLanguage(code) {
     if (!code) return null;
@@ -705,6 +708,22 @@ export default function HomePage() {
     );
   };
 
+  // Immer nach unten scrollen, wenn sich Nachrichten/Status ändern
+  useEffect(() => {
+    if (chatPanelRef.current) {
+      chatPanelRef.current.scrollTop = chatPanelRef.current.scrollHeight;
+    }
+  }, [
+    showTyping1,
+    showMessage1,
+    showTyping2,
+    showMessage2,
+    showTyping3,
+    showMessage3,
+    helperMessages,
+    isTyping,
+  ]);
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#18181b] via-[#232136] to-zinc-900 text-white relative overflow-x-hidden">
       {/* Navigation */}
@@ -1079,6 +1098,7 @@ export default function HomePage() {
 
         {/* Chat Panel */}
         <section
+          ref={chatPanelRef}
           className={`md:w-[40%] w-full flex flex-col gap-4 h-full overflow-y-auto rounded-3xl p-8 transition-all duration-300 flex-grow custom-scrollbar`}
         >
           <div className="space-y-6">
