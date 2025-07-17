@@ -41,11 +41,11 @@ export default function FlashcardPage() {
     switch (sortOption) {
       case "Neueste":
         return [...cards].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
         );
       case "Älteste":
         return [...cards].sort(
-          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
       case "Hints":
         return [...cards].sort(
@@ -62,7 +62,9 @@ export default function FlashcardPage() {
     filtered = filtered.filter(
       (card) =>
         (card.prompt || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (card.task_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (card.task_name || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         (card.task || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
     return sortCards(filtered);
@@ -134,7 +136,7 @@ export default function FlashcardPage() {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="rounded-full px-5 py-2 border-fuchsia-700 text-fuchsia-300 bg-zinc-900 font-semibold shadow focus:outline-none focus:ring-2 focus:ring-fuchsia-700"
             >
-              <option value="Alle">Alle</option>
+              <option value="Alle">All</option>
               <option value="Backlog">Backlog</option>
               <option value="Repeat">Repeat</option>
               <option value="InProgress">InProgress</option>
@@ -146,9 +148,9 @@ export default function FlashcardPage() {
               onChange={(e) => setSortOption(e.target.value)}
               className="rounded-full px-5 py-2 border-fuchsia-700 text-fuchsia-300 bg-zinc-900 font-semibold shadow focus:outline-none focus:ring-2 focus:ring-fuchsia-700"
             >
-              <option value="Neueste">Neueste zuerst</option>
-              <option value="Älteste">Älteste zuerst</option>
-              <option value="Hints">Hints genutzt</option>
+              <option value="Neueste">Newest</option>
+              <option value="Älteste">Oldest</option>
+              <option value="Hints">Hints used</option>
             </select>
           </div>
         </section>
