@@ -293,7 +293,10 @@ export default function HomePage() {
         helperSession.updateHints(result.text_hint, result.code_hint);
 
         addHelperMessage({
-          text: result.feedback_message,
+          text:
+            result.feedback_message && result.feedback_message.trim() !== ""
+              ? result.feedback_message
+              : "No feedback received. Please check your code and try again.",
           progress: result.progress_assessment,
           improvements: result.improvements_made,
           issues: result.issues_found,
@@ -316,11 +319,15 @@ export default function HomePage() {
     }
   };
 
-  // Hint-Buttons: Klick-Status merken
-  const [hintClicked, setHintClicked] = useState({ text: false, code: false });
+  // Hint-Buttons: Klick-Status merken (inkl. Solution)
+  const [hintClicked, setHintClicked] = useState({
+    text: false,
+    code: false,
+    solution: false,
+  });
   const handleShowHint = (type) => {
     if (!helperSession) return;
-    if (hintClicked[type]) return; // Doppelklick verhindern
+    if (hintClicked[type] || hintClicked.solution) return; // Doppelklick verhindern oder nach Solution-Klick
     const hint =
       type === "text" ? helperSession.textHint : helperSession.codeHint;
     setShowHints((prev) => ({ ...prev, [type]: true }));
@@ -340,6 +347,8 @@ export default function HomePage() {
     setShowSolution(true);
     setShowGenerateFlashcard(true);
     setCodeHintContent(helperSession.solution || ""); // Editor zeigt Lösung
+    // Nach Klick: alle drei Buttons deaktivieren
+    setHintClicked({ text: true, code: true, solution: true });
   };
 
   // Hilfsfunktion zum Erstellen eines Flashcard-Objekts aus LLM-Result
@@ -797,7 +806,12 @@ export default function HomePage() {
                 variant="outline"
                 onClick={() => isHelperMode && handleShowHint("text")}
                 className="border-purple-700 text-purple-200 hover:bg-purple-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
-                disabled={!isHelperMode || hintClicked.text}
+                disabled={
+                  isAnalyzing ||
+                  !isHelperMode ||
+                  hintClicked.text ||
+                  hintClicked.solution
+                }
               >
                 💡 Text Hint
               </Button>
@@ -805,10 +819,35 @@ export default function HomePage() {
                 variant="outline"
                 onClick={() => isHelperMode && handleShowHint("code")}
                 className="border-fuchsia-700 text-fuchsia-200 hover:bg-fuchsia-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
-                disabled={!isHelperMode || hintClicked.code}
+                disabled={
+                  isAnalyzing ||
+                  !isHelperMode ||
+                  hintClicked.code ||
+                  hintClicked.solution
+                }
               >
                 🔧 Code Hint
               </Button>
+              <button
+                onClick={
+                  isHelperMode && !hintClicked.solution
+                    ? handleShowSolution
+                    : undefined
+                }
+                disabled={isAnalyzing || !isHelperMode || hintClicked.solution}
+                className={`px-4 py-1 rounded-full font-bold text-white text-xs bg-gradient-to-r from-fuchsia-600 via-purple-500 to-fuchsia-400 shadow-2xl border-2 border-fuchsia-300 transition-all z-20 ml-2
+                ${
+                  isHelperMode && !hintClicked.solution && !isAnalyzing
+                    ? "animate-pulse hover:scale-105 hover:shadow-fuchsia-500/50"
+                    : "opacity-50 cursor-not-allowed"
+                }
+              `}
+                style={{
+                  boxShadow: "0 0 8px 2px #e879f9, 0 0 16px 4px #a21caf",
+                }}
+              >
+                🎯 Solution
+              </button>
             </div>
           </div>
 
@@ -1036,27 +1075,6 @@ export default function HomePage() {
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-4 mt-2">
-            {/* Solution Button jetzt links und etwas kleiner */}
-            {isHelperMode && !showSolution && (
-              <button
-                onClick={
-                  hintClicked.text && hintClicked.code
-                    ? handleShowSolution
-                    : undefined
-                }
-                disabled={!(hintClicked.text && hintClicked.code)}
-                className={`order-first px-4 py-1.5 rounded-full font-bold text-white text-sm bg-gradient-to-r from-fuchsia-600 via-purple-500 to-fuchsia-400 shadow-2xl border-2 border-fuchsia-300 transition-all z-20 ${
-                  hintClicked.text && hintClicked.code
-                    ? "animate-pulse hover:scale-105 hover:shadow-fuchsia-500/50"
-                    : "opacity-50 cursor-not-allowed"
-                }`}
-                style={{
-                  boxShadow: "0 0 8px 2px #e879f9, 0 0 16px 4px #a21caf",
-                }}
-              >
-                🎯 Solution
-              </button>
-            )}
             {/* Nach Klick auf Lösung: Re-Analyze deaktivieren, Flashcard-Button anzeigen */}
             {isHelperMode && showSolution ? (
               <>
@@ -1081,7 +1099,7 @@ export default function HomePage() {
                 disabled={
                   isAnalyzing ||
                   !apiBaseUrl ||
-                  (isHelperMode && (!hintClicked.text || !hintClicked.code))
+                  (isHelperMode && hintClicked.solution)
                 }
                 className="bg-gradient-to-r from-purple-700 via-fuchsia-700 to-purple-500 text-white font-semibold px-8 py-2 rounded-full shadow-xl hover:scale-105 hover:shadow-fuchsia-700/30 transition-all disabled:opacity-50"
               >
