@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import clsx from "clsx";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import FlashcardColumn from "@/components/FlashcardColumn";
@@ -24,6 +25,42 @@ function Input({ value, onChange, placeholder, className }) {
 }
 
 export default function FlashcardPage() {
+  // Drag & Drop: State für Mülleimer-Animation und zu löschende Karte
+  const [isTrashActive, setIsTrashActive] = useState(false);
+  const [draggedId, setDraggedId] = useState(null);
+
+  // Globaler Callback für Drag-Start und Drag-End
+  window.setFlashcardDraggedId = (id) => {
+    setDraggedId(id);
+  };
+
+  // Drop-Handler für die Mülltonne
+  const handleTrashDrop = async (e) => {
+    e.preventDefault();
+    const cardId = e.dataTransfer.getData("text/plain") || draggedId;
+    if (!cardId) return;
+    try {
+      await fetch(`http://localhost:5000/api/flashcards/${cardId}`, {
+        method: "DELETE",
+      });
+      setFlashcards((prev) => prev.filter((c) => c._id !== cardId));
+    } catch (err) {
+      alert("Fehler beim Löschen der Karte");
+    }
+    setIsTrashActive(false);
+    setDraggedId(null);
+  };
+
+  // Drag-Over: Mülleimer vergrößern
+  const handleTrashDragOver = (e) => {
+    e.preventDefault();
+    setIsTrashActive(true);
+  };
+
+  // Drag-Leave: Mülleimer normal
+  const handleTrashDragLeave = () => {
+    setIsTrashActive(false);
+  };
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [flashcards, setFlashcards] = useState([]);
@@ -242,6 +279,24 @@ export default function FlashcardPage() {
             </div>
           ))}
         </section>
+
+        {/* Mülltonne als Dropzone unten rechts (nur sichtbar beim Drag) */}
+        {draggedId && (
+          <div
+            onDrop={handleTrashDrop}
+            onDragOver={handleTrashDragOver}
+            onDragLeave={handleTrashDragLeave}
+            className={clsx(
+              "fixed bottom-8 right-8 z-50 flex items-center justify-center bg-gradient-to-br from-red-700 via-fuchsia-700 to-purple-700 rounded-full shadow-2xl border-4 border-fuchsia-500/40 text-4xl text-white cursor-pointer transition-all duration-200",
+              isTrashActive ? "w-24 h-24 scale-110" : "w-16 h-16"
+            )}
+            title="Hierher ziehen zum Löschen"
+          >
+            <span role="img" aria-label="Mülltonne">
+              🗑️
+            </span>
+          </div>
+        )}
       </main>
     </div>
   );
