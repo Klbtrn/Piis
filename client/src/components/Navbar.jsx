@@ -19,7 +19,7 @@ export default function Navbar() {
               isActive("/") ? "text-purple-400" : ""
             }`}
           >
-            HOME
+            HELPER
           </Link>
         </li>
         <li>
