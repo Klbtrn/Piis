@@ -11,6 +11,7 @@ export default function FlashcardColumn({ title, cards }) {
       "border-yellow-400 bg-gradient-to-br from-yellow-900/80 via-yellow-800/80 to-zinc-900/80",
     Done: "border-green-500 bg-gradient-to-br from-green-900/80 via-green-800/80 to-zinc-900/80",
   };
+  
   const normalizedTitle = title?.split(" ")[0];
   // Korrigiere "InProgress" statt "In"
   const colorKey = normalizedTitle === "In" ? "InProgress" : normalizedTitle;
@@ -33,9 +34,17 @@ export default function FlashcardColumn({ title, cards }) {
           return (
             <FlashcardCard
               key={key}
-              {...card} 
+              _id={card._id}
               prompt={card.task_name} // Title
               task_name={""} // Description
+              language={card.language}
+              hintCount={card.hintCount}
+              hintsUsed={card.hintsUsed}
+              status={card.status}
+              nextReviewDate={card.nextReviewDate}
+              attempts={card.attempts}
+              successfulReviews={card.successfulReviews}
+              difficultyFactor={card.difficultyFactor}
               color={styleClass.split(" ")[0]}
             />
           );
