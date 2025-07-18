@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import FlashcardColumn from "@/components/FlashcardColumn";
 import { getLevelNumber } from "@/lib/utils";
@@ -23,42 +24,46 @@ function Input({ value, onChange, placeholder, className }) {
 }
 
 export default function FlashcardPage() {
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [flashcards, setFlashcards] = useState([]);
-  const [filterStatus, setFilterStatus] = useState("Alle");
+  // Status aus Query-Parameter lesen
+  const queryParams = new URLSearchParams(location.search);
+  const initialStatus = queryParams.get("status") || "Alle";
+  const [filterStatus, setFilterStatus] = useState(initialStatus);
   const [sortOption, setSortOption] = useState("Neueste");
   const [spacedRepStats, setSpacedRepStats] = useState(null);
   const [reviewsMovedToday, setReviewsMovedToday] = useState(0);
 
-
-   useEffect(() => {
+  useEffect(() => {
     const fetchAndCheckCards = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/flashcards");
         const data = await response.json();
         setFlashcards(data);
-        
+
         // Check for cards due for review and move them
         const movedCards = await SpacedRepetitionSystem.moveCardsToReview(data);
         if (movedCards > 0) {
           setReviewsMovedToday(movedCards);
           console.log(`${movedCards} cards moved to review`);
-          
+
           // Refresh flashcards after moving
-          const refreshResponse = await fetch("http://localhost:5000/api/flashcards");
+          const refreshResponse = await fetch(
+            "http://localhost:5000/api/flashcards"
+          );
           const refreshedData = await refreshResponse.json();
           setFlashcards(refreshedData);
         }
-        
+
         // Calculate spaced repetition stats
         const stats = SpacedRepetitionSystem.getSpacedRepetitionStats(data);
         setSpacedRepStats(stats);
-        
       } catch (err) {
         console.error("Error fetching flashcards:", err);
       }
     };
-    
+
     fetchAndCheckCards();
   }, []);
 
@@ -96,6 +101,11 @@ export default function FlashcardPage() {
     return sortCards(filtered);
   };
 
+  // FilterStatus aktualisieren, wenn sich der Query-Parameter ändert
+  useEffect(() => {
+    setFilterStatus(initialStatus);
+  }, [location.search]);
+
   // Level- und Fortschrittsberechnung
   const doneCount = flashcards.filter((c) => c.status === "Done").length;
   const level = getLevelNumber(doneCount);
@@ -116,16 +126,16 @@ export default function FlashcardPage() {
     { title: "Done", status: "Done" },
   ];
 
-   return (
+  return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#18181b] via-[#232136] to-zinc-900 text-white relative overflow-x-hidden">
       <Navbar />
       <main className="p-8 pt-4 flex flex-col gap-8 max-w-[1800px] mx-auto items-stretch">
-        
         {/* Show notification if cards were moved to review */}
         {reviewsMovedToday > 0 && (
           <div className="bg-gradient-to-r from-fuchsia-900/80 to-purple-900/80 p-4 rounded-2xl border border-fuchsia-500/40 mb-4">
             <p className="text-fuchsia-200 font-semibold">
-              📅 {reviewsMovedToday} cards moved to review today! Time to practice what you've learned.
+              📅 {reviewsMovedToday} cards moved to review today! Time to
+              practice what you've learned.
             </p>
           </div>
         )}
@@ -164,31 +174,27 @@ export default function FlashcardPage() {
                 {progressInLevel}/{neededForNext}
               </span>
             </div>
-            
+
             {/* Spaced Repetition Stats */}
             {spacedRepStats && (
               <div className="flex items-center gap-3 bg-gradient-to-r from-green-900/80 via-emerald-800/80 to-zinc-900/80 px-5 py-2 rounded-full shadow border border-green-700/40">
                 <span className="text-green-300 font-bold text-sm">
                   📅 {spacedRepStats.cardsForReviewToday}
                 </span>
-                <span className="text-white text-xs">
-                  due today
-                </span>
+                <span className="text-white text-xs">due today</span>
                 <span className="text-green-200 text-xs">
                   • {spacedRepStats.upcomingThisWeek} this week
                 </span>
               </div>
             )}
-            
+
             {/* Performance Indicator */}
             {spacedRepStats && (
               <div className="flex items-center gap-3 bg-gradient-to-r from-blue-900/80 via-cyan-800/80 to-zinc-900/80 px-5 py-2 rounded-full shadow border border-blue-700/40">
                 <span className="text-blue-300 font-bold text-sm">
                   📈 {spacedRepStats.averagePerformance}
                 </span>
-                <span className="text-white text-xs">
-                  avg performance
-                </span>
+                <span className="text-white text-xs">avg performance</span>
               </div>
             )}
 
@@ -204,7 +210,7 @@ export default function FlashcardPage() {
               <option value="InProgress">InProgress</option>
               <option value="Done">Done</option>
             </select>
-            
+
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}

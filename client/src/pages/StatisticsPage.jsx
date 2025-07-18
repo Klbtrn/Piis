@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import {
   Card,
@@ -30,13 +31,15 @@ const STATUS_COLORS = {
   Backlog: "bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 text-white",
   Repeat: "bg-gradient-to-r from-fuchsia-700 via-red-500 to-red-400 text-white",
   InProgress:
-    "bg-gradient-to-r from-purple-700 via-purple-500 to-purple-400 text-white",
+    "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-black",
   Done: "bg-gradient-to-r from-green-700 via-green-500 to-green-400 text-white",
 };
 
 export default function StatisticsPage() {
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:5000/api/flashcards")
@@ -82,17 +85,19 @@ export default function StatisticsPage() {
     >
       <Navbar />
       <main className="p-8 pt-4 flex flex-col gap-8 max-w-[1200px] mx-auto items-stretch">
-        <h1 className="text-3xl font-bold mb-2 text-fuchsia-300 drop-shadow">
+        <h1 className="text-4xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-blue-400 drop-shadow-lg flex items-center gap-2">
           Statistics
         </h1>
         {loading ? (
           <div className="text-center text-zinc-400">Loading data...</div>
         ) : (
           <>
-            <Card className={`${glassBg} ${cardBg} ${borderAccent} mb-4`}>
+            <Card
+              className={`${glassBg} ${cardBg} ${borderAccent} mb-4 rounded-2xl shadow-lg hover:shadow-fuchsia-700/30 transition-shadow`}
+            >
               <CardHeader>
-                <CardTitle className="text-2xl mb-2 text-fuchsia-200">
-                  General Progress
+                <CardTitle className="text-2xl mb-2 text-fuchsia-200 flex items-center gap-2">
+                  <span>🚀</span>General Progress
                 </CardTitle>
                 <CardDescription>
                   <div className="flex flex-wrap gap-4 mb-4">
@@ -103,12 +108,20 @@ export default function StatisticsPage() {
                       <span className="ml-2 text-zinc-400">Total cards</span>
                     </div>
                     {STATUS.map((status) => (
-                      <Badge
+                      <button
                         key={status}
-                        className={`ml-2 px-4 py-2 rounded-full shadow ${STATUS_COLORS[status]}`}
+                        className={`ml-2 px-4 py-2 rounded-full shadow ${STATUS_COLORS[status]} transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-fuchsia-700 cursor-pointer`}
+                        onClick={() => navigate(`/flashcards?status=${status}`)}
+                        title={`Zu ${STATUS_LABELS[status]} filtern`}
                       >
+                        <span className="mr-1">
+                          {status === "Backlog" && "🗂️"}
+                          {status === "Repeat" && "🔁"}
+                          {status === "InProgress" && "⚡"}
+                          {status === "Done" && "✅"}
+                        </span>
                         {STATUS_LABELS[status]}: {perStatus[status]}
-                      </Badge>
+                      </button>
                     ))}
                   </div>
                   <div className="flex items-center gap-4 mb-2">
@@ -145,13 +158,13 @@ export default function StatisticsPage() {
             {spacedRepStats && (
               <Card className={`${glassBg} ${cardBg} border-fuchsia-700 mb-4`}>
                 <CardHeader>
-                  <CardTitle className="text-2xl mb-2 text-fuchsia-300 drop-shadow">
-                    📅 Spaced Repetition
+                  <CardTitle className="text-2xl mb-2 text-fuchsia-300 drop-shadow flex items-center gap-2">
+                    <span>📅</span>Spaced Repetition
                   </CardTitle>
                   <CardDescription>
                     <div className="grid grid-cols-2 gap-6 mb-4">
                       {/* Today's Reviews */}
-                      <div className="bg-gradient-to-r from-green-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-green-700/40">
+                      <div className="bg-gradient-to-r from-green-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-green-700/40 hover:shadow-green-700/40 transition-shadow">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl">📚</span>
                           <span className="text-green-300 font-semibold">
@@ -167,7 +180,7 @@ export default function StatisticsPage() {
                       </div>
 
                       {/* This Week */}
-                      <div className="bg-gradient-to-r from-blue-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-blue-700/40">
+                      <div className="bg-gradient-to-r from-blue-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-blue-700/40 hover:shadow-blue-700/40 transition-shadow">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl">📊</span>
                           <span className="text-blue-300 font-semibold">
@@ -183,7 +196,7 @@ export default function StatisticsPage() {
                       </div>
 
                       {/* Performance */}
-                      <div className="bg-gradient-to-r from-purple-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-purple-700/40">
+                      <div className="bg-gradient-to-r from-purple-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-purple-700/40 hover:shadow-purple-700/40 transition-shadow">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl">🎯</span>
                           <span className="text-purple-300 font-semibold">
@@ -199,7 +212,7 @@ export default function StatisticsPage() {
                       </div>
 
                       {/* Difficulty */}
-                      <div className="bg-gradient-to-r from-fuchsia-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-fuchsia-700/40">
+                      <div className="bg-gradient-to-r from-fuchsia-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-fuchsia-700/40 hover:shadow-fuchsia-700/40 transition-shadow">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl">⚡</span>
                           <span className="text-fuchsia-300 font-semibold">
