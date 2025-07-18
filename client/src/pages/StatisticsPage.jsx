@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getLevelNumber } from "@/lib/utils";
 import SpacedRepetitionSystem from "@/lib/SpacedRepetitionSystem";
+
+// Style-Variablen wie in HomePage und FlashcardPage
+const glassBg =
+  "bg-white/10 backdrop-blur-md shadow-2xl border border-purple-400/30";
+const cardBg =
+  "bg-gradient-to-br from-purple-900/80 via-purple-800/80 to-zinc-900/80";
+const accent = "from-purple-600 via-fuchsia-500 to-purple-400";
+const borderAccent = "border border-purple-500/40";
 
 const STATUS = ["Backlog", "Repeat", "InProgress", "Done"];
 const STATUS_LABELS = {
@@ -14,10 +27,11 @@ const STATUS_LABELS = {
   Done: "Done",
 };
 const STATUS_COLORS = {
-  Backlog: "bg-blue-500",
-  Repeat: "bg-red-500",
-  InProgress: "bg-purple-500",
-  Done: "bg-green-500",
+  Backlog: "bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 text-white",
+  Repeat: "bg-gradient-to-r from-fuchsia-700 via-red-500 to-red-400 text-white",
+  InProgress:
+    "bg-gradient-to-r from-purple-700 via-purple-500 to-purple-400 text-white",
+  Done: "bg-gradient-to-r from-green-700 via-green-500 to-green-400 text-white",
 };
 
 export default function StatisticsPage() {
@@ -44,49 +58,84 @@ export default function StatisticsPage() {
   const donePercent = total ? Math.round((perStatus.Done / total) * 100) : 0;
   const level = getLevelNumber(perStatus.Done);
   const doneCards = flashcards.filter((c) => c.status === "Done");
-  const avgHintsDone = doneCards.length ? (doneCards.reduce((sum, c) => sum + (c.hintsUsed || 0), 0) / doneCards.length).toFixed(2) : "0.00";
-  const spacedRepStats = flashcards.length > 0 ? SpacedRepetitionSystem.getSpacedRepetitionStats(flashcards) : null;
-  const totalAttempts = flashcards.reduce((sum, c) => sum + (c.attempts || 0), 0);
-  const avgAttemptsPerCard = flashcards.length ? (totalAttempts / flashcards.length).toFixed(1) : "0.0";
+  const avgHintsDone = doneCards.length
+    ? (
+        doneCards.reduce((sum, c) => sum + (c.hintsUsed || 0), 0) /
+        doneCards.length
+      ).toFixed(2)
+    : "0.00";
+  const spacedRepStats =
+    flashcards.length > 0
+      ? SpacedRepetitionSystem.getSpacedRepetitionStats(flashcards)
+      : null;
+  const totalAttempts = flashcards.reduce(
+    (sum, c) => sum + (c.attempts || 0),
+    0
+  );
+  const avgAttemptsPerCard = flashcards.length
+    ? (totalAttempts / flashcards.length).toFixed(1)
+    : "0.0";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-zinc-900 text-white">
+    <div
+      className={`min-h-screen w-full bg-gradient-to-br from-[#18181b] via-[#232136] to-zinc-900 text-white relative overflow-x-hidden`}
+    >
       <Navbar />
-      <div className="max-w-3xl mx-auto p-6 flex flex-col gap-8">
-        <h1 className="text-3xl font-bold mb-2">Statistiken</h1>
+      <main className="p-8 pt-4 flex flex-col gap-8 max-w-[1200px] mx-auto items-stretch">
+        <h1 className="text-3xl font-bold mb-2 text-fuchsia-300 drop-shadow">
+          Statistics
+        </h1>
         {loading ? (
-          <div className="text-center text-zinc-400">Lade Daten...</div>
+          <div className="text-center text-zinc-400">Loading data...</div>
         ) : (
           <>
-            <Card className="bg-zinc-950 border-purple-700">
+            <Card className={`${glassBg} ${cardBg} ${borderAccent} mb-4`}>
               <CardHeader>
-                <CardTitle className="text-2xl mb-2">Allgemeiner Fortschritt</CardTitle>
+                <CardTitle className="text-2xl mb-2 text-fuchsia-200">
+                  General Progress
+                </CardTitle>
                 <CardDescription>
                   <div className="flex flex-wrap gap-4 mb-4">
                     <div>
-                      <span className="text-lg font-semibold">{total}</span>
-                      <span className="ml-2 text-zinc-400">Karten insgesamt</span>
+                      <span className="text-lg font-semibold text-fuchsia-300">
+                        {total}
+                      </span>
+                      <span className="ml-2 text-zinc-400">Total cards</span>
                     </div>
                     {STATUS.map((status) => (
-                      <Badge key={status} className={`ml-2 ${STATUS_COLORS[status]}`}>
+                      <Badge
+                        key={status}
+                        className={`ml-2 px-4 py-2 rounded-full shadow ${STATUS_COLORS[status]}`}
+                      >
                         {STATUS_LABELS[status]}: {perStatus[status]}
                       </Badge>
                     ))}
                   </div>
                   <div className="flex items-center gap-4 mb-2">
-                    <span className="text-zinc-400 w-24">Done-Anteil</span>
-                    <span className="font-semibold">{donePercent}%</span>
+                    <span className="text-zinc-400 w-24">Done ratio</span>
+                    <span className="font-semibold text-fuchsia-200">
+                      {donePercent}%
+                    </span>
                     <div className="flex-1">
-                      <Progress value={donePercent} />
+                      <Progress
+                        value={donePercent}
+                        className="bg-purple-900/40 h-3 rounded-full"
+                      />
                     </div>
                   </div>
                   <div className="flex items-center gap-4 mb-2">
                     <span className="text-zinc-400 w-24">Level</span>
-                    <span className="font-semibold text-lg">{level}</span>
+                    <span className="font-semibold text-lg text-fuchsia-300">
+                      {level}
+                    </span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-zinc-400 w-56">Ø Hints/Karte in Done</span>
-                    <span className="font-semibold">{avgHintsDone}</span>
+                    <span className="text-zinc-400 w-56">
+                      Avg hints/card in Done
+                    </span>
+                    <span className="font-semibold text-fuchsia-200">
+                      {avgHintsDone}
+                    </span>
                   </div>
                 </CardDescription>
               </CardHeader>
@@ -94,18 +143,20 @@ export default function StatisticsPage() {
 
             {/* Spaced Repetition Card */}
             {spacedRepStats && (
-              <Card className="bg-zinc-950 border-fuchsia-700">
+              <Card className={`${glassBg} ${cardBg} border-fuchsia-700 mb-4`}>
                 <CardHeader>
-                  <CardTitle className="text-2xl mb-2 text-fuchsia-300">
+                  <CardTitle className="text-2xl mb-2 text-fuchsia-300 drop-shadow">
                     📅 Spaced Repetition
                   </CardTitle>
                   <CardDescription>
                     <div className="grid grid-cols-2 gap-6 mb-4">
                       {/* Today's Reviews */}
-                      <div className="bg-green-900/30 p-4 rounded-xl">
+                      <div className="bg-gradient-to-r from-green-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-green-700/40">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl">📚</span>
-                          <span className="text-green-300 font-semibold">Today</span>
+                          <span className="text-green-300 font-semibold">
+                            Today
+                          </span>
                         </div>
                         <div>
                           <span className="text-2xl font-bold text-green-400">
@@ -116,10 +167,12 @@ export default function StatisticsPage() {
                       </div>
 
                       {/* This Week */}
-                      <div className="bg-blue-900/30 p-4 rounded-xl">
+                      <div className="bg-gradient-to-r from-blue-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-blue-700/40">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl">📊</span>
-                          <span className="text-blue-300 font-semibold">This Week</span>
+                          <span className="text-blue-300 font-semibold">
+                            This Week
+                          </span>
                         </div>
                         <div>
                           <span className="text-2xl font-bold text-blue-400">
@@ -130,10 +183,12 @@ export default function StatisticsPage() {
                       </div>
 
                       {/* Performance */}
-                      <div className="bg-purple-900/30 p-4 rounded-xl">
+                      <div className="bg-gradient-to-r from-purple-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-purple-700/40">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl">🎯</span>
-                          <span className="text-purple-300 font-semibold">Performance</span>
+                          <span className="text-purple-300 font-semibold">
+                            Performance
+                          </span>
                         </div>
                         <div>
                           <span className="text-2xl font-bold text-purple-400">
@@ -144,10 +199,12 @@ export default function StatisticsPage() {
                       </div>
 
                       {/* Difficulty */}
-                      <div className="bg-fuchsia-900/30 p-4 rounded-xl">
+                      <div className="bg-gradient-to-r from-fuchsia-900/80 to-zinc-900/80 p-4 rounded-xl shadow border border-fuchsia-700/40">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl">⚡</span>
-                          <span className="text-fuchsia-300 font-semibold">Difficulty</span>
+                          <span className="text-fuchsia-300 font-semibold">
+                            Difficulty
+                          </span>
                         </div>
                         <div>
                           <span className="text-2xl font-bold text-fuchsia-400">
@@ -161,15 +218,25 @@ export default function StatisticsPage() {
                     {/* Additional Metrics */}
                     <div className="space-y-2 border-t border-fuchsia-700/30 pt-4">
                       <div className="flex items-center gap-4">
-                        <span className="text-zinc-400 w-48">Total Attempts</span>
-                        <span className="font-semibold text-fuchsia-300">{totalAttempts}</span>
+                        <span className="text-zinc-400 w-48">
+                          Total Attempts
+                        </span>
+                        <span className="font-semibold text-fuchsia-300">
+                          {totalAttempts}
+                        </span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-zinc-400 w-48">Avg Attempts per Card</span>
-                        <span className="font-semibold text-fuchsia-300">{avgAttemptsPerCard}</span>
+                        <span className="text-zinc-400 w-48">
+                          Avg Attempts per Card
+                        </span>
+                        <span className="font-semibold text-fuchsia-300">
+                          {avgAttemptsPerCard}
+                        </span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-zinc-400 w-48">Cards in Review System</span>
+                        <span className="text-zinc-400 w-48">
+                          Cards in Review System
+                        </span>
                         <span className="font-semibold text-fuchsia-300">
                           {spacedRepStats.totalDoneCards}
                         </span>
@@ -181,7 +248,7 @@ export default function StatisticsPage() {
             )}
           </>
         )}
-      </div>
+      </main>
     </div>
   );
 }
