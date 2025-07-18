@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Editor from "@/components/Editor";
+import SpacedRepetitionSystem from "@/lib/SpacedRepetitionSystem";
 
 // Logos
 import pythonLogo from "/src/assets/python-logo.png";
@@ -18,6 +19,9 @@ export default function TrainerPage() {
   const [duggyMessage, setDuggyMessage] = useState("Look at the Task in the editor above and try to solve it. If you are stuck feel free to take a hint. And when your code is ready, analyze it 😎");
   const [taskEditorContent, setTaskEditorContent] = useState("");
   const [editorContent, setEditorContent] = useState("");
+  const [cardCompleted, setCardCompleted] = useState(false);
+  const [hintsUsedCount, setHintsUsedCount] = useState(0);
+  const [completionMessage, setCompletionMessage] = useState("");
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/flashcards/${id}`)
@@ -81,13 +85,53 @@ export default function TrainerPage() {
 
   const handleTextHint = () => {
     setDuggyMessage(flashcard?.hintText || "No text hint available");
+    setHintsUsedCount(prev => prev + 1);
     console.log("Text hint requested");
   }
 
   const handleCodeHint = () => {
     setTaskEditorContent(flashcard?.hintCode || "No code hint available");
+    setHintsUsedCount(prev => prev + 1);
     console.log("Code hint requested");
   }
+
+   const handleCardCompletion = async () => {
+    if (!flashcard || cardCompleted) return;
+    
+    try {
+      // Process through spaced repetition system
+      const updatedCard = SpacedRepetitionSystem.processCardCompletion({
+        ...flashcard,
+        hintsUsed: hintsUsedCount,
+        hintCount: flashcard.hintCount || 2
+      });
+      
+      // Save updated card to database
+      const response = await fetch(`http://localhost:5000/api/flashcards/${flashcard._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedCard)
+      });
+      
+      if (response.ok) {
+        setCardCompleted(true);
+        const performanceScore = SpacedRepetitionSystem.calculatePerformanceScore(
+          hintsUsedCount, 
+          flashcard.hintCount || 2, 
+          (flashcard.attempts || 0) + 1
+        );
+        
+        setCompletionMessage(
+          `🎉 Excellent work! This card will return for review in ${updatedCard.currentInterval} days. ` +
+          `Performance score: ${(performanceScore * 100).toFixed(0)}%`
+        );
+        setDuggyMessage(completionMessage);
+      }
+    } catch (error) {
+      console.error('Failed to update card:', error);
+      setDuggyMessage("Oops! I couldn't save your progress. But great job solving it! 🎉");
+    }
+  };
 
   const handleSolution = () => {
     setTaskEditorContent(flashcard?.solution || "No solution available");
@@ -215,23 +259,46 @@ export default function TrainerPage() {
               variant="outline"
               className="ml-8 border-purple-600 text-purple-400 hover:bg-purple-900/40 rounded-full"
               onClick={handleTextHint}
+              disabled={cardCompleted}
             >
-              Text Hint
+              💡 Text Hint
             </Button>
             <Button
               variant="outline"
               className="ml-4 border-purple-600 text-purple-400 hover:bg-purple-900/40 rounded-full"
               onClick={handleCodeHint}
+              disabled={cardCompleted}
             >
-              Code Hint
+              🔧 Code Hint
             </Button>
-            <Button className="ml-4 bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold px-6 py-2 rounded-full hover:opacity-90 transition-all"
+            <Button 
+              className="ml-4 bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold px-6 py-2 rounded-full hover:opacity-90 transition-all"
               onClick={handleSolution}
+              disabled={cardCompleted}
             >
               🎯 Solution
             </Button>
+            
+            {/* Add completion button */}
+            {!cardCompleted ? (
+              <Button 
+                className="ml-4 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-full transition-all"
+                onClick={handleCardCompletion}
+              >
+                ✅ Mark Complete
+              </Button>
+            ) : (
+              <Button 
+                className="ml-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-full transition-all"
+                onClick={() => window.history.back()}
+              >
+                🏠 Back to Flashcards
+              </Button>
+            )}
+            
             <Button className="ml-auto bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold px-6 py-2 rounded-full hover:opacity-90 transition-all"
               onClick={handleAnalysis}
+              disabled={cardCompleted}
             >
               Analyze
             </Button>
