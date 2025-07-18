@@ -28,7 +28,8 @@ RESPONSE REQUIREMENTS:
 - problem_description: Maximum 200 characters TOTAL
 - clarification_request: Maximum 300 characters TOTAL
 - Be specific about bugs, not general advice
-- Always provide valid, complete JSON responses
+- Focus on error detection
+- Keep your answers concise and to the point, in order to not hit any length limitations
 
 Your primary goal: Find and explain errors in the code.`;
 
@@ -216,12 +217,6 @@ router.post("/prompt", async (req, res) => {
     console.log("User input:", userInput);
 
     const fullPrompt = `${selectedPrompt.prompt}
-
-CRITICAL REQUIREMENTS - ERROR DETECTION FOCUS:
-- text_hint: Maximum 400 characters - MUST identify the main bug/error/mistake
-- code_hint: Maximum 800 characters - show how to fix the specific error
-- problem_description: Maximum 200 characters
-- clarification_request: Maximum 300 characters
 
 DEBUGGING PRIORITY:
 1. Look for syntax errors, logic errors, runtime errors first

@@ -80,7 +80,7 @@
       "name": "Helper Generate Flashcard",
       "description": "Generate flashcard content from the helper session",
       "category": "helper",
-      "prompt": "Create a concise flashcard from the programming problem session.\n\nREQUIREMENTS:\n- task_description: MAX 300 characters\n- text_hint: MAX 400 characters\n- code_hint: MAX 800 characters\n- Focus on core learning objectives\n- Make it self-contained for future practice\n\nCreate educational flashcard content for spaced repetition learning.",
+      "prompt": "Create a NEW, SIMPLE, SHORT exercise targeting the same core concept. ULTRA-BRIEF responses required!\n\nSTEPS:\n1. Identify main error type (wrong parameter, index bounds, etc.)\n2. Create minimal starter code WITH the same error\n3. Keep ALL text ultra-short\n\nEXAMPLE: QuickSort wrong recursive param → Simple recursive function with wrong param for user to fix\n\nCRITICAL LIMITS:\n- task_description: MAX 200 chars - what user needs to fix\n- initial_code: MAX 400 chars - buggy starter code for user to fix\n- text_hint: MAX 300 chars - guide to find the bug\n- solution: MAX 300 chars - corrected version\n- Use shortest variable names (a,b,n vs start,end,num)\n- Remove all comments from code\n- Single concept only\n\nBREVITY IS CRITICAL - responses are getting truncated!",
       "tags": ["helper", "flashcard-generation", "spaced-repetition", "concept-reinforcement"],
       "responseSchema": {
         "type": "Type.OBJECT",
@@ -91,10 +91,10 @@
           "task_description": {
             "type": "Type.STRING"
           },
-          "text_hint": {
+          "initial_code": {
             "type": "Type.STRING"
           },
-          "code_hint": {
+          "text_hint": {
             "type": "Type.STRING"
           },
           "solution": {

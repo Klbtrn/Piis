@@ -42,16 +42,6 @@ export default function Navbar() {
             FLASHCARDS
           </Link>
         </li>
-        <li>
-          <Link
-            to="/training"
-            className={`hover:text-purple-300 ${
-              isActive("/training") ? "text-purple-400" : ""
-            }`}
-          >
-            TRAINING
-          </Link>
-        </li>
       </ul>
     </nav>
   );
