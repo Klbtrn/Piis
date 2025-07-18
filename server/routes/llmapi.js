@@ -24,7 +24,7 @@ ERROR DETECTION PRIORITY:
 
 RESPONSE REQUIREMENTS:
 - text_hint: Maximum 400 characters - MUST describe the main error/mistake
-- code_hint: Maximum 800 characters - copy and paste the code from the user input and add a comment in the lines which you found the error. USE the code-block format with triple backticks for the code.
+- code_hint: Maximum 800 characters - copy and paste the code from the user input and add a comment in the lines which you found the error. Format the code correctly according to the programming language used.
 - problem_description: Maximum 200 characters TOTAL
 - clarification_request: Maximum 300 characters TOTAL
 - Be specific about bugs, not general advice
