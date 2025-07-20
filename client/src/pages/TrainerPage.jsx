@@ -209,129 +209,154 @@ export default function TrainerPage() {
 
       {/* Main Content */}
       <main className="p-8 pt-4 flex flex-col gap-8 max-w-[1800px] mx-auto items-stretch">
-        <section className="flex flex-row gap-8">
-          {/* Left Side */}
-          <div className="w-2/5 h-full">
-            {/* Language Indicator */}
-            <div className="mb-4">
-              <button className="flex items-center gap-2 bg-zinc-950 border border-purple-500 rounded-full px-4 py-2">
-                <img
-                  src={getLanguageLabel().logo}
-                  alt={flashcard?.language}
-                  className="w-5 h-5"
-                />
-                <span className="text-sm font-medium text-white">
-                  {getLanguageLabel().name}
-                </span>
-              </button>
-            </div>
-
-            {/* Task */}
-            <div className="h-[55vh] flex">
-              <Editor
-                height="55vh"
-                language={flashcard?.language}
-                value={taskEditorContent}
-                editable={false}
+        <section className="flex flex-col gap-8">
+          {/* Language Indicator über die ganze Seite */}
+          <div className="w-full flex justify-start mt-3">
+            <button className="flex items-center gap-2 bg-zinc-950 border border-purple-500 rounded-full px-5 py-2 shadow-md">
+              <img
+                src={getLanguageLabel().logo}
+                alt={flashcard?.language}
+                className="w-5 h-5"
               />
-            </div>
-
-            {/* Duggy Messages */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              className="flex items-start"
-            >
-              {/* Duggy Chat-Avatar und Sprechblase wie auf der HomePage */}
-              <div className="flex items-start gap-4 mt-4">
-                {/* Duggy im dunklen runden Profilbild mit Name */}
-                <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-zinc-900 via-purple-900 to-zinc-800 flex items-center justify-center shadow-lg border-2 border-purple-700">
-                    <img
-                      src={duggyLogo}
-                      alt="Duggy Logo"
-                      className="w-12 h-12 object-contain scale-x-[-1]"
-                    />
-                  </div>
-                  <span className="mt-2 text-xs font-semibold text-purple-300 tracking-wide">
-                    Duggy
-                  </span>
-                </div>
-                {/* Sprechblase mit lila Hintergrund und Dreieck zum Kreis */}
-                <div className="relative flex flex-col">
-                  <div className="bg-gradient-to-br from-purple-900 via-fuchsia-900 to-purple-700 text-white px-6 py-4 rounded-2xl shadow-xl border border-purple-500/40 min-w-[180px] max-w-xl relative">
-                    <span className="absolute -left-2 top-5 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-purple-900"></span>
-                    <p className="leading-relaxed text-left whitespace-pre-line font-medium">
-                      {duggyMessage}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+              <span className="text-sm font-medium text-white">
+                {getLanguageLabel().name}
+              </span>
+            </button>
           </div>
-
-          {/* Right Side */}
-          <div className="w-3/5 h-full flex flex-col gap-4">
-            {/* Editor */}
-            <div className="pl-8 gap-4">
-              <Editor
-                height="80vh"
-                language={flashcard?.language}
-                editable={true}
-                onChange={(val) => {
-                  setEditorContent(val);
-                }}
-              />
+          {/* Editoren nebeneinander */}
+          <div className="flex flex-row gap-12 items-start w-full">
+            {/* Task Editor */}
+            <div className="flex-1 flex flex-col">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7 }}
+                className="flex-1 flex items-center justify-center relative"
+                style={{ minHeight: "48vh" }}
+              >
+                <div className="w-full bg-white/10 backdrop-blur-lg border border-purple-500 rounded-2xl shadow-2xl transition-all hover:shadow-[0_0_32px_4px_rgba(168,85,247,0.5)] p-4 mt-2 relative">
+                  <span className="absolute top-4 right-6 bg-purple-700/80 text-white px-3 py-1 rounded-full text-xs font-semibold shadow border border-purple-500/40 z-10">
+                    Task
+                  </span>
+                  <Editor
+                    height="48vh"
+                    language={flashcard?.language}
+                    value={taskEditorContent}
+                    editable={false}
+                  />
+                </div>
+              </motion.div>
             </div>
-            {/* Buttons */}
-            <div className="flex flex-row gap-3 mt-2">
-              <Button
-                className="ml-4 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
-                onClick={handleTextHint}
-                disabled={cardCompleted}
+            {/* Solution Editor */}
+            <div className="flex-1 flex flex-col">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7 }}
+                className="flex-1 flex items-center justify-center"
+                style={{ minHeight: "48vh" }}
               >
-                💡 Text Hint
-              </Button>
-              <Button
-                className="ml-2 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
-                onClick={handleCodeHint}
-                disabled={cardCompleted}
+                <div className="w-full bg-white/10 backdrop-blur-lg border border-purple-500 rounded-2xl shadow-2xl transition-all hover:shadow-[0_0_32px_4px_rgba(168,85,247,0.5)] p-4 mt-2 relative">
+                  <span className="absolute top-4 right-6 bg-purple-700/80 text-white px-3 py-1 rounded-full text-xs font-semibold shadow border border-purple-500/40 z-10">
+                    Your Solution
+                  </span>
+                  <Editor
+                    height="48vh"
+                    language={flashcard?.language}
+                    editable={true}
+                    onChange={(val) => {
+                      setEditorContent(val);
+                    }}
+                  />
+                </div>
+              </motion.div>
+              {/* Buttons unter dem Editor */}
+              <div
+                className="flex flex-row gap-3 mt-4 justify-end items-start"
+                style={{ minHeight: "48px" }}
               >
-                🔧 Code Hint
-              </Button>
-              <Button
-                className="ml-2 bg-gradient-to-r from-red-700 via-red-500 to-fuchsia-500 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all border-2 border-red-500"
-                onClick={handleSolution}
-                disabled={cardCompleted}
-              >
-                🎯 Solution
-              </Button>
-
-              {/* Add completion button */}
-              {!cardCompleted ? (
                 <Button
-                  className="ml-2 bg-gradient-to-r from-green-600 to-green-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
-                  onClick={handleCardCompletion}
+                  className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
+                  onClick={handleTextHint}
+                  disabled={cardCompleted}
                 >
-                  ✅ Mark Complete
+                  💡 Text Hint
                 </Button>
-              ) : (
                 <Button
-                  className="ml-2 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
-                  onClick={() => window.history.back()}
+                  className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
+                  onClick={handleCodeHint}
+                  disabled={cardCompleted}
                 >
-                  🏠 Back to Flashcards
+                  🔧 Code Hint
                 </Button>
-              )}
+                <Button
+                  className="bg-gradient-to-r from-red-700 via-red-500 to-fuchsia-500 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all border-2 border-red-500"
+                  onClick={handleSolution}
+                  disabled={cardCompleted}
+                >
+                  🎯 Solution
+                </Button>
 
-              <Button
-                className="ml-auto bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
-                onClick={handleAnalysis}
-                disabled={cardCompleted}
+                {/* Add completion button */}
+                {!cardCompleted ? (
+                  <Button
+                    className="bg-gradient-to-r from-green-600 to-green-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
+                    onClick={handleCardCompletion}
+                  >
+                    ✅ Mark Complete
+                  </Button>
+                ) : (
+                  <Button
+                    className="bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
+                    onClick={() => window.history.back()}
+                  >
+                    🏠 Back to Flashcards
+                  </Button>
+                )}
+
+                <Button
+                  className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
+                  onClick={handleAnalysis}
+                  disabled={cardCompleted}
+                >
+                  Analyze
+                </Button>
+              </div>
+            </div>
+          </div>
+          {/* Duggy Messages unter den Editoren */}
+          <div className="flex flex-row gap-12 items-start w-full">
+            <div className="flex-1 flex flex-col">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1 }}
+                className="flex items-start"
+                style={{ minHeight: "64px" }}
               >
-                Analyze
-              </Button>
+                <div className="flex items-start gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-zinc-900 via-purple-900 to-zinc-800 flex items-center justify-center shadow-lg border-2 border-purple-700">
+                      <img
+                        src={duggyLogo}
+                        alt="Duggy Logo"
+                        className="w-12 h-12 object-contain scale-x-[-1]"
+                      />
+                    </div>
+                    <span className="mt-2 text-xs font-semibold text-purple-300 tracking-wide">
+                      Duggy
+                    </span>
+                  </div>
+                  <div className="relative flex flex-col">
+                    <div className="bg-gradient-to-br from-purple-900 via-fuchsia-900 to-purple-700 text-white px-6 py-4 rounded-2xl shadow-xl border border-purple-500/40 min-w-[180px] max-w-xl relative">
+                      <span className="absolute -left-2 top-5 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-purple-900"></span>
+                      <p className="leading-relaxed text-left whitespace-pre-line font-medium">
+                        {duggyMessage}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
