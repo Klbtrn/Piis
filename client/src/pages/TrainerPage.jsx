@@ -285,25 +285,23 @@ export default function TrainerPage() {
               />
             </div>
             {/* Buttons */}
-            <div className="flex flex-row">
+            <div className="flex flex-row gap-3 mt-2">
               <Button
-                variant="outline"
-                className="ml-8 border-purple-600 text-purple-400 hover:bg-purple-900/40 rounded-full"
+                className="ml-4 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                 onClick={handleTextHint}
                 disabled={cardCompleted}
               >
                 💡 Text Hint
               </Button>
               <Button
-                variant="outline"
-                className="ml-4 border-purple-600 text-purple-400 hover:bg-purple-900/40 rounded-full"
+                className="ml-2 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                 onClick={handleCodeHint}
                 disabled={cardCompleted}
               >
                 🔧 Code Hint
               </Button>
               <Button
-                className="ml-4 bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold px-6 py-2 rounded-full hover:opacity-90 transition-all"
+                className="ml-2 bg-gradient-to-r from-red-700 via-red-500 to-fuchsia-500 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all border-2 border-red-500"
                 onClick={handleSolution}
                 disabled={cardCompleted}
               >
@@ -313,14 +311,14 @@ export default function TrainerPage() {
               {/* Add completion button */}
               {!cardCompleted ? (
                 <Button
-                  className="ml-4 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-full transition-all"
+                  className="ml-2 bg-gradient-to-r from-green-600 to-green-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                   onClick={handleCardCompletion}
                 >
                   ✅ Mark Complete
                 </Button>
               ) : (
                 <Button
-                  className="ml-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-full transition-all"
+                  className="ml-2 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                   onClick={() => window.history.back()}
                 >
                   🏠 Back to Flashcards
@@ -328,7 +326,7 @@ export default function TrainerPage() {
               )}
 
               <Button
-                className="ml-auto bg-gradient-to-r from-purple-600 to-purple-400 text-white font-semibold px-6 py-2 rounded-full hover:opacity-90 transition-all"
+                className="ml-auto bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                 onClick={handleAnalysis}
                 disabled={cardCompleted}
               >
