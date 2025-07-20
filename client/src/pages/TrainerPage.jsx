@@ -234,7 +234,7 @@ export default function TrainerPage() {
                 className="flex-1 flex items-center justify-center relative"
                 style={{ minHeight: "48vh" }}
               >
-                <div className="w-full bg-white/10 backdrop-blur-lg border border-purple-500 rounded-2xl shadow-2xl transition-all hover:shadow-[0_0_32px_4px_rgba(168,85,247,0.5)] p-4 mt-2 relative">
+                <div className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl bg-white/10 backdrop-blur-lg border border-purple-500 rounded-2xl shadow-2xl transition-all hover:shadow-[0_0_32px_4px_rgba(168,85,247,0.5)] p-4 mt-2 relative">
                   <span className="absolute top-4 right-6 bg-purple-700/80 text-white px-3 py-1 rounded-full text-xs font-semibold shadow border border-purple-500/40 z-10">
                     Task
                   </span>
@@ -256,7 +256,7 @@ export default function TrainerPage() {
                 className="flex-1 flex items-center justify-center"
                 style={{ minHeight: "48vh" }}
               >
-                <div className="w-full bg-white/10 backdrop-blur-lg border border-purple-500 rounded-2xl shadow-2xl transition-all hover:shadow-[0_0_32px_4px_rgba(168,85,247,0.5)] p-4 mt-2 relative">
+                <div className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl bg-white/10 backdrop-blur-lg border border-purple-500 rounded-2xl shadow-2xl transition-all hover:shadow-[0_0_32px_4px_rgba(168,85,247,0.5)] p-4 mt-2 relative">
                   <span className="absolute top-4 right-6 bg-purple-700/80 text-white px-3 py-1 rounded-full text-xs font-semibold shadow border border-purple-500/40 z-10">
                     Your Solution
                   </span>
