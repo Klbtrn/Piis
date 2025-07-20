@@ -208,8 +208,8 @@ export default function TrainerPage() {
       <Navbar />
 
       {/* Main Content */}
-      <main className="p-8 pt-4 flex flex-col gap-8 max-w-[1800px] mx-auto items-stretch">
-        <section className="flex flex-col gap-8">
+      <main className="p-8 pt-4 flex flex-col gap-3 max-w-[1800px] mx-auto items-stretch">
+        <section className="flex flex-col gap-3">
           {/* Language Indicator über die ganze Seite */}
           <div className="w-full flex justify-start mt-3">
             <button className="flex items-center gap-2 bg-zinc-950 border border-purple-500 rounded-full px-5 py-2 shadow-md">
