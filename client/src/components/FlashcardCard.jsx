@@ -34,7 +34,7 @@ export default function FlashcardCard({
 
   const formatReviewInfo = () => {
     if (status !== "Done" || !nextReviewDate) {
-      return `${hintsUsed}/${hintCount} hints${
+      return `${hintsUsed} hints${
         attempts > 0 ? ` • ${attempts} attempts` : ""
       }`;
     }
