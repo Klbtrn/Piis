@@ -1,4 +1,39 @@
 import { useState, useEffect, useRef } from "react";
+import beautify from "js-beautify";
+import pythonFormat from "python-format-js";
+// Hilfsfunktion: Formatiert Code je nach Sprache
+function formatCodeByLanguage(code, lang) {
+  if (!code) return "";
+  if (lang === "javascript") {
+    try {
+      const formatted = beautify.js(code, {
+        indent_size: 2,
+        space_in_empty_paren: true,
+      });
+      console.log("[Formatter] JavaScript-Formatierung aktiv");
+      return formatted;
+    } catch (e) {
+      console.log("[Formatter] JavaScript-Formatierung Fehler", e);
+      return code;
+    }
+  }
+  if (lang === "python") {
+    try {
+      const formatted = pythonFormat(code);
+      console.log("[Formatter] Python-Formatierung aktiv");
+      return formatted;
+    } catch (e) {
+      console.log("[Formatter] Python-Formatierung Fehler", e);
+      return code;
+    }
+  }
+  console.log(
+    "[Formatter] Keine Formatierung angewendet (Sprache: ",
+    lang,
+    ")"
+  );
+  return code;
+}
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -338,7 +373,7 @@ export default function HomePage() {
         type: "hint",
       });
     } else if (type === "code") {
-      setCodeHintContent(hint || "");
+      setCodeHintContent(formatCodeByLanguage(hint || "", language));
     }
   };
 
@@ -346,7 +381,9 @@ export default function HomePage() {
     if (!helperSession) return;
     setShowSolution(true);
     setShowGenerateFlashcard(true);
-    setCodeHintContent(helperSession.solution || ""); // Editor zeigt Lösung
+    setCodeHintContent(
+      formatCodeByLanguage(helperSession.solution || "", language)
+    ); // Editor zeigt Lösung
     // Nach Klick: alle drei Buttons deaktivieren
     setHintClicked({ text: true, code: true, solution: true });
   };
