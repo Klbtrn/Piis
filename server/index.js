@@ -19,10 +19,12 @@ mongoose
 
 // Import and mount routes
 const flashcardRoutes = require("./routes/flashcards");
-const llmRoutes = require("./routes/llmapi"); 
+const llmRoutes = require("./routes/llmapi");
+const formatRoutes = require("./routes/format");
 
 app.use("/api/flashcards", flashcardRoutes);
 app.use("/api/llm", llmRoutes);
+app.use("/api/format", formatRoutes);
 
 // Basic route
 app.get("/", (req, res) => {

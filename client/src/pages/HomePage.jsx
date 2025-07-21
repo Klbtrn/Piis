@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import beautify from "js-beautify";
-import pythonFormat from "python-format-js";
 // Hilfsfunktion: Formatiert Code je nach Sprache
-function formatCodeByLanguage(code, lang) {
+async function formatCodeByLanguage(code, lang) {
   if (!code) return "";
   if (lang === "javascript") {
     try {
@@ -19,11 +18,17 @@ function formatCodeByLanguage(code, lang) {
   }
   if (lang === "python") {
     try {
-      const formatted = pythonFormat(code);
-      console.log("[Formatter] Python-Formatierung aktiv");
-      return formatted;
+      const response = await fetch("http://localhost:5000/api/format/python", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      if (!response.ok) throw new Error("Backend-Formatierung fehlgeschlagen");
+      const data = await response.json();
+      console.log("[Formatter] Python-Formatierung aktiv (Backend)");
+      return data.formatted || code;
     } catch (e) {
-      console.log("[Formatter] Python-Formatierung Fehler", e);
+      console.log("[Formatter] Python-Formatierung Fehler (Backend)", e);
       return code;
     }
   }
@@ -360,7 +365,7 @@ export default function HomePage() {
     code: false,
     solution: false,
   });
-  const handleShowHint = (type) => {
+  const handleShowHint = async (type) => {
     if (!helperSession) return;
     if (hintClicked[type] || hintClicked.solution) return; // Doppelklick verhindern oder nach Solution-Klick
     const hint =
@@ -373,17 +378,20 @@ export default function HomePage() {
         type: "hint",
       });
     } else if (type === "code") {
-      setCodeHintContent(formatCodeByLanguage(hint || "", language));
+      const formatted = await formatCodeByLanguage(hint || "", language);
+      setCodeHintContent(formatted);
     }
   };
 
-  const handleShowSolution = () => {
+  const handleShowSolution = async () => {
     if (!helperSession) return;
     setShowSolution(true);
     setShowGenerateFlashcard(true);
-    setCodeHintContent(
-      formatCodeByLanguage(helperSession.solution || "", language)
-    ); // Editor zeigt Lösung
+    const formatted = await formatCodeByLanguage(
+      helperSession.solution || "",
+      language
+    );
+    setCodeHintContent(formatted); // Editor zeigt Lösung
     // Nach Klick: alle drei Buttons deaktivieren
     setHintClicked({ text: true, code: true, solution: true });
   };
