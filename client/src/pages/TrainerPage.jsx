@@ -16,21 +16,24 @@ export default function TrainerPage() {
   const { id } = useParams();
   const [flashcard, setFlashcard] = useState(null);
   const [apiBaseUrl, setApiBaseUrl] = useState(null);
-  const [duggyMessage, setDuggyMessage] = useState(
-    "Look at the Task in the editor above and try to solve it. If you are stuck feel free to take a hint. And when your code is ready, analyze it 😎"
-  );
+  const [duggyMessage, setDuggyMessage] = useState(null);
   const [taskEditorContent, setTaskEditorContent] = useState("");
   const [editorContent, setEditorContent] = useState("");
   const [cardCompleted, setCardCompleted] = useState(false);
   const [hintsUsedCount, setHintsUsedCount] = useState(0);
+  const [solutionUsed, setSolutionUsed] = useState(false);
+  const [buttonsDeactivated, setButtonsDeactivated] = useState({ textHint: false, codeHint: false , analyze: false, solution: false });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [completionMessage, setCompletionMessage] = useState("");
+  const [examMode, setExamMode] = useState(false);
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/flashcards/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        setFlashcard(data);
-        setTaskEditorContent(data?.task);
+        setFlashcard({ ...data, status: "InProgress" });
+        setTaskEditorContent(data?.taskCode || "No task code available");
+        setDuggyMessage(data?.taskText || "No task description available");
       })
       .catch((err) => console.error("Error fetching flashcard:", err));
   }, [id]);
@@ -88,12 +91,14 @@ export default function TrainerPage() {
   const handleTextHint = () => {
     setDuggyMessage(flashcard?.hintText || "No text hint available");
     setHintsUsedCount((prev) => prev + 1);
+    setButtonsDeactivated((prev) => ({ ...prev, textHint: true }));
     console.log("Text hint requested");
   };
 
   const handleCodeHint = () => {
     setTaskEditorContent(flashcard?.hintCode || "No code hint available");
     setHintsUsedCount((prev) => prev + 1);
+    setButtonsDeactivated((prev) => ({ ...prev, codeHint: true }));
     console.log("Code hint requested");
   };
 
@@ -143,6 +148,8 @@ export default function TrainerPage() {
 
   const handleSolution = () => {
     setTaskEditorContent(flashcard?.solution || "No solution available");
+    setButtonsDeactivated((prev) => ({ ...prev, textHint: true, codeHint: true, analyze: true }));
+    setSolutionUsed(true);
     console.log("Solution requested");
   };
 
@@ -155,13 +162,16 @@ export default function TrainerPage() {
       return;
     }
 
+    setIsAnalyzing(true);
+    setDuggyMessage("Analyzing your code... ⏳");
+
     try {
       const response = await fetch(`${apiBaseUrl}/prompt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           promptId: "trainer_analyse_prompt",
-          userInput: `Please analyze this code:\n\n${taskEditorContent}`,
+          userInput: `Please analyze this code:\n\n${editorContent}`,
         }),
       });
 
@@ -170,28 +180,17 @@ export default function TrainerPage() {
       }
 
       const result = await response.json();
+      setIsAnalyzing(false);
 
       setTimeout(() => {
         if (result?.needs_clarification) {
           setDuggyMessage(`${result.clarification_request}`);
         } else {
           setDuggyMessage(`${result.feedback_message}`);
-          // const session = new HelperSession({
-          //   initialEditorContent: editorContent,
-          //   textHint: result.text_hint,
-          //   codeHint: result.code_hint,
-          //   solution: result.solution,
-          //   problemDescription: result.problem_description,
-          //   keyConcepts: result.key_concepts,
-          // });
-
-          // setHelperSession(session);
-          // setIsHelperMode(true);
-
-          // addHelperMessage({
-          //   text: `Great! I can see you're working on: ${result.problem_description}\n\nI'm ready to help you solve this step by step. You can use the hint buttons below, or keep editing your code and click "Re-Analyze" for updated guidance! 💪`,
-          //   showControls: true,
-          // });
+          if (result.mastered) {
+            setCardCompleted(true);
+            handleCardCompletion();
+          }
         }
       }, 1500);
     } catch (error) {
@@ -211,7 +210,7 @@ export default function TrainerPage() {
       <main className="p-8 pt-4 flex flex-col gap-3 max-w-[1800px] mx-auto items-stretch">
         <section className="flex flex-col gap-3">
           {/* Language Indicator über die ganze Seite */}
-          <div className="w-full flex justify-start mt-3">
+          <div className="w-full flex justify-between mt-3">
             <button className="flex items-center gap-2 bg-zinc-950 border border-purple-500 rounded-full px-5 py-2 shadow-md">
               <img
                 src={getLanguageLabel().logo}
@@ -222,6 +221,14 @@ export default function TrainerPage() {
                 {getLanguageLabel().name}
               </span>
             </button>
+            <Button
+              className="flex items-center  bg-zinc-950 border border-purple-500 rounded-full px-5 py-2 shadow-md"
+              onClick={() => setExamMode(true)}
+              disabled={ cardCompleted || examMode || hintsUsedCount > 0 || solutionUsed }
+            >
+              { examMode ? <p>🟢</p> : <p>🔴</p> }
+              <span className="text-sm font-medium text-white">Exam Mode</span>
+            </Button>
           </div>
           {/* Editoren nebeneinander */}
           <div className="flex flex-row gap-12 items-start w-full">
@@ -278,34 +285,27 @@ export default function TrainerPage() {
                 <Button
                   className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                   onClick={handleTextHint}
-                  disabled={cardCompleted}
+                  disabled={buttonsDeactivated.textHint || cardCompleted || examMode}
                 >
                   💡 Text Hint
                 </Button>
                 <Button
                   className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                   onClick={handleCodeHint}
-                  disabled={cardCompleted}
+                  disabled={buttonsDeactivated.codeHint || cardCompleted || examMode}
                 >
                   🔧 Code Hint
                 </Button>
                 <Button
                   className="bg-gradient-to-r from-red-700 via-red-500 to-fuchsia-500 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all border-2 border-red-500"
                   onClick={handleSolution}
-                  disabled={cardCompleted}
+                  disabled={cardCompleted || examMode || solutionUsed}
                 >
                   🎯 Solution
                 </Button>
 
-                {/* Add completion button */}
-                {!cardCompleted ? (
-                  <Button
-                    className="bg-gradient-to-r from-green-600 to-green-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
-                    onClick={handleCardCompletion}
-                  >
-                    ✅ Mark Complete
-                  </Button>
-                ) : (
+                {/* Add back to flashcards button */}
+                {cardCompleted && (
                   <Button
                     className="bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                     onClick={() => window.history.back()}
@@ -317,7 +317,7 @@ export default function TrainerPage() {
                 <Button
                   className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                   onClick={handleAnalysis}
-                  disabled={cardCompleted}
+                  disabled={buttonsDeactivated.analyze || cardCompleted}
                 >
                   Analyze
                 </Button>

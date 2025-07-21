@@ -23,7 +23,8 @@ const flashcardSchema = new mongoose.Schema({
   difficultyFactor: { type: Number, default: 2.5 }, // Performance-based multiplier (1.3-5.0)
   currentInterval: { type: Number, default: 1 },    // Current interval in days
   // Spaced Repetition
-  task: String, // Beschreibung der Aufgabe
+  taskText: String, // Beschreibung der Aufgabe
+  taskCode: String, // Code, der für die Aufgabe verwendet wird
   keyConcepts: [String], // Schlüsselkonzepte, die in der Karte behandelt werden
   hintCount: Number,
   hintsUsed: Number,
