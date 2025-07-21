@@ -188,8 +188,8 @@ export default function TrainerPage() {
         } else {
           setDuggyMessage(`${result.feedback_message}`);
           if (result.mastered) {
-            setCardCompleted(true);
             handleCardCompletion();
+            setCardCompleted(true);
           }
         }
       }, 1500);
@@ -222,7 +222,7 @@ export default function TrainerPage() {
               </span>
             </button>
             <Button
-              className="flex items-center  bg-zinc-950 border border-purple-500 rounded-full px-5 py-2 shadow-md"
+              className="flex items-center bg-gradient-to-r from-purple-600/20 via-fuchsia-500/20 to-purple-400/20 border border-purple-500 rounded-full px-5 py-2 shadow-md hover:scale-105 hover:shadow-xl transition-all"
               onClick={() => setExamMode(true)}
               disabled={ cardCompleted || examMode || hintsUsedCount > 0 || solutionUsed }
             >
