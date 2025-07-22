@@ -50,11 +50,13 @@ duggybuggy/
 ## 🚀 Project Setup
 
 ### 🛠 Prerequisites
+
 - [Node.js](https://nodejs.org/)
 - [Python Venv with Black](https://pypi.org/project/black/)
 - [Git for cloning](https://git-scm.com/)
 - [MongoDB Compass](https://www.mongodb.com/de-de/products/tools/compass)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Gemini API Key](https://aistudio.google.com)
 
 (Works also with regular Docker and MongoDB, if you prefer the pain 😉)
 
