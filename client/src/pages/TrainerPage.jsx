@@ -274,6 +274,8 @@ export default function TrainerPage() {
           } else if (result.mastered) {
             setFlashcard((prev) => ({...prev, status: 'InProgress'}));
             handleCardCompletion();
+          } else if (!result.mastered) {
+            setDuggyMessage(result.feedback_message || "Your code has some issues. Please review the feedback and try again!");
           }
         }
       }, 1500);

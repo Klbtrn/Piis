@@ -38,8 +38,7 @@ export default function FlashcardColumn({ title, cards }) {
               prompt={card.task_name} // Title
               task_name={""} // Description
               language={card.language}
-              hintCount={card.hintCount}
-              hintsUsed={card.hintsUsed}
+              hintsUsedOverall={card.hintsUsedOverall}
               status={card.status}
               nextReviewDate={card.nextReviewDate}
               attempts={card.attempts}
