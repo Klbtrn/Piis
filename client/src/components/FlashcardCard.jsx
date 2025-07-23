@@ -13,8 +13,7 @@ export default function FlashcardCard({
   prompt,
   task_name,
   language,
-  hintCount = 2,
-  hintsUsed = 0,
+  hintsUsedOverall = 0,
   status,
   nextReviewDate,
   attempts = 0,
@@ -34,7 +33,7 @@ export default function FlashcardCard({
 
   const formatReviewInfo = () => {
     if (status !== "Done" || !nextReviewDate) {
-      return `${hintsUsed} hints${
+      return `${hintsUsedOverall} hints${
         attempts > 0 ? ` • ${attempts} attempts` : ""
       }`;
     }

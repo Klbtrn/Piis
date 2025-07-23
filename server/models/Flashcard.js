@@ -28,6 +28,7 @@ const flashcardSchema = new mongoose.Schema({
   keyConcepts: [String], // Schlüsselkonzepte, die in der Karte behandelt werden
   hintCount: Number,
   hintsUsed: Number,
+  hintsUsedOverall: Number, // Gesamtzahl der verwendeten Hinweise
   triedCount: Number, // Anzahl der gestarteten Sessions
   textHintUsed: Boolean, // Gibt an, ob der Text-Hinweis verwendet wurde
   codeHintUsed: Boolean, // Gibt an, ob der Code-Hinweis verwendet wurde

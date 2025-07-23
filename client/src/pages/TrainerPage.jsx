@@ -1,4 +1,44 @@
 import { useState, useEffect } from "react";
+import beautify from "js-beautify";
+// Hilfsfunktion: Formatiert Code je nach Sprache
+async function formatCodeByLanguage(code, lang) {
+  if (!code) return "";
+  if (lang === "javascript") {
+    try {
+      const formatted = beautify.js(code, {
+        indent_size: 2,
+        space_in_empty_paren: true,
+      });
+      console.log("[Formatter] JavaScript-Formatierung aktiv");
+      return formatted;
+    } catch (e) {
+      console.log("[Formatter] JavaScript-Formatierung Fehler", e);
+      return code;
+    }
+  }
+  if (lang === "python") {
+    try {
+      const response = await fetch("http://localhost:5000/api/format/python", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      if (!response.ok) throw new Error("Backend-Formatierung fehlgeschlagen");
+      const data = await response.json();
+      console.log("[Formatter] Python-Formatierung aktiv (Backend)");
+      return data.formatted || code;
+    } catch (e) {
+      console.log("[Formatter] Python-Formatierung Fehler (Backend)", e);
+      return code;
+    }
+  }
+  console.log(
+    "[Formatter] Keine Formatierung angewendet (Sprache: ",
+    lang,
+    ")"
+  );
+  return code;
+}
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -16,6 +56,8 @@ export default function TrainerPage() {
   const { id } = useParams();
   const [flashcard, setFlashcard] = useState(null);
   const [apiBaseUrl, setApiBaseUrl] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
   const [duggyMessage, setDuggyMessage] = useState(null);
   const [taskEditorContent, setTaskEditorContent] = useState("");
   const [editorContent, setEditorContent] = useState("");
@@ -23,19 +65,31 @@ export default function TrainerPage() {
   const [hintsUsedCount, setHintsUsedCount] = useState(0);
   const [solutionUsed, setSolutionUsed] = useState(false);
   const [buttonsDeactivated, setButtonsDeactivated] = useState({ textHint: false, codeHint: false , analyze: false, solution: false });
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [completionMessage, setCompletionMessage] = useState("");
   const [examMode, setExamMode] = useState(false);
 
+  // Load flashcard data
   useEffect(() => {
-    fetch(`http://localhost:5000/api/flashcards/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchFlashcard = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/flashcards/${id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Received flashcard data:', data);
         setFlashcard({ ...data, status: "InProgress" });
-        setTaskEditorContent(data?.taskCode || "No task code available");
-        setDuggyMessage(data?.taskText || "No task description available");
-      })
-      .catch((err) => console.error("Error fetching flashcard:", err));
+        
+        // Set initial content immediately after receiving data
+        const formattedTaskCode = await formatCodeByLanguage(data.taskCode, data.language);
+        setTaskEditorContent(formattedTaskCode || "No task code available");
+        setDuggyMessage(data.taskText || "No task text available");
+      } catch (err) {
+        console.error("Error fetching flashcard:", err);
+        setDuggyMessage("Error loading flashcard 😢");
+      }
+    };
+
+    fetchFlashcard();
   }, [id]);
 
   useEffect(() => {
@@ -84,7 +138,7 @@ export default function TrainerPage() {
       case "javascript":
         return { name: "JavaScript", logo: jsLogo };
       default:
-        return { name: "Unknown", logo: "" };
+        return { name: "Unknown", logo: null };
     }
   };
 
@@ -95,8 +149,9 @@ export default function TrainerPage() {
     console.log("Text hint requested");
   };
 
-  const handleCodeHint = () => {
-    setTaskEditorContent(flashcard?.hintCode || "No code hint available");
+  const handleCodeHint = async () => {
+    const formattedCodeHint = await formatCodeByLanguage(flashcard?.hintCode, flashcard?.language);
+    setTaskEditorContent(formattedCodeHint || "No code hint available");
     setHintsUsedCount((prev) => prev + 1);
     setButtonsDeactivated((prev) => ({ ...prev, codeHint: true }));
     console.log("Code hint requested");
@@ -124,7 +179,6 @@ export default function TrainerPage() {
       );
 
       if (response.ok) {
-        setCardCompleted(true);
         const performanceScore =
           SpacedRepetitionSystem.calculatePerformanceScore(
             hintsUsedCount,
@@ -132,11 +186,10 @@ export default function TrainerPage() {
             (flashcard.attempts || 0) + 1
           );
 
-        setCompletionMessage(
-          `🎉 Excellent work! This card will return for review in ${updatedCard.currentInterval} days. ` +
+        const completionMessage = `🎉 Excellent work! This card will return for review in ${updatedCard.currentInterval} days. ` +
             `Performance score: ${(performanceScore * 100).toFixed(0)}%`
-        );
         setDuggyMessage(completionMessage);
+        setCardCompleted(true);
       }
     } catch (error) {
       console.error("Failed to update card:", error);
@@ -146,10 +199,38 @@ export default function TrainerPage() {
     }
   };
 
-  const handleSolution = () => {
-    setTaskEditorContent(flashcard?.solution || "No solution available");
-    setButtonsDeactivated((prev) => ({ ...prev, textHint: true, codeHint: true, analyze: true }));
+  const handleSolution = async () => {
+    const formattedSolution = await formatCodeByLanguage(flashcard?.solution, flashcard?.language);
+    setTaskEditorContent(formattedSolution || "No solution available");
+    setButtonsDeactivated((prev) => ({ ...prev, textHint: true, codeHint: true, analyze: true, solution: true }));
     setSolutionUsed(true);
+
+    if (flashcard?.status !== 'Done') {
+      const updatedCard = { ...flashcard, status: 'Repeat' };
+      setFlashcard(updatedCard);
+      console.log(`updating flashcard because solution was pressed: ${updatedCard}`);
+      try {
+        // Save updated card to database
+        const response = await fetch(
+          `http://localhost:5000/api/flashcards/${flashcard._id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedCard),
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to update card status:" + response.statusText);
+        }
+      } catch (error) {
+        console.error("Failed to update card:", error);
+        setDuggyMessage(
+          "Oops! I couldn't save your progress. 😖"
+        );
+      }
+    }
+    setCardCompleted(true);
+    setDuggyMessage("I've revealed the solution. Take your time to understand it thoroughly! This card will be up for another try to ensure mastery. 💪");
     console.log("Solution requested");
   };
 
@@ -186,10 +267,13 @@ export default function TrainerPage() {
         if (result?.needs_clarification) {
           setDuggyMessage(`${result.clarification_request}`);
         } else {
-          setDuggyMessage(`${result.feedback_message}`);
-          if (result.mastered) {
+          // setDuggyMessage(`${result.feedback_message}`);   Commented out to avoid double Message
+          if (examMode || result.mastered) {
+            setFlashcard((prev) => ({...prev, status: 'Done'}));
             handleCardCompletion();
-            setCardCompleted(true);
+          } else if (result.mastered) {
+            setFlashcard((prev) => ({...prev, status: 'InProgress'}));
+            handleCardCompletion();
           }
         }
       }, 1500);
@@ -212,11 +296,13 @@ export default function TrainerPage() {
           {/* Language Indicator über die ganze Seite */}
           <div className="w-full flex justify-between mt-3">
             <button className="flex items-center gap-2 bg-zinc-950 border border-purple-500 rounded-full px-5 py-2 shadow-md">
-              <img
-                src={getLanguageLabel().logo}
-                alt={flashcard?.language}
-                className="w-5 h-5"
-              />
+              {getLanguageLabel().logo && (
+                <img
+                  src={getLanguageLabel().logo}
+                  alt={flashcard?.language}
+                  className="w-5 h-5"
+                />
+              )}
               <span className="text-sm font-medium text-white">
                 {getLanguageLabel().name}
               </span>
@@ -283,29 +369,31 @@ export default function TrainerPage() {
                 style={{ minHeight: "48px" }}
               >
                 <Button
-                  className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
+                  variant="outline"
+                  className="border-purple-700 text-purple-200 hover:bg-purple-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
                   onClick={handleTextHint}
                   disabled={buttonsDeactivated.textHint || cardCompleted || examMode}
                 >
                   💡 Text Hint
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-purple-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
+                  variant="outline"
+                  className="border-fuchsia-700 text-fuchsia-200 hover:bg-fuchsia-900/40 rounded-full px-4 py-1 text-xs font-semibold shadow-sm"
                   onClick={handleCodeHint}
                   disabled={buttonsDeactivated.codeHint || cardCompleted || examMode}
                 >
                   🔧 Code Hint
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-red-700 via-red-500 to-fuchsia-500 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all border-2 border-red-500"
+                  className="px-4 py-1 rounded-full font-bold text-white text-xs bg-gradient-to-r from-fuchsia-600 via-purple-500 to-fuchsia-400 shadow-2xl border-2 border-fuchsia-300 transition-all z-20 ml-2 animate-pulse hover:scale-105 hover:shadow-fuchsia-500/50"
                   onClick={handleSolution}
-                  disabled={cardCompleted || examMode || solutionUsed}
+                  disabled={buttonsDeactivated.solution || cardCompleted || examMode}
                 >
                   🎯 Solution
                 </Button>
 
                 {/* Add back to flashcards button */}
-                {cardCompleted && (
+                {(cardCompleted || solutionUsed) && (
                   <Button
                     className="bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                     onClick={() => window.history.back()}

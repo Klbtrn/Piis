@@ -117,7 +117,7 @@ export default function FlashcardPage() {
         );
       case "Hints":
         return [...cards].sort(
-          (a, b) => (b.hintsUsed ?? 0) - (a.hintsUsed ?? 0)
+          (a, b) => (b.hintsUsedOverall ?? 0) - (a.hintsUsedOverall ?? 0)
         );
       default:
         return cards;

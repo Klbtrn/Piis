@@ -48,6 +48,7 @@ class SpacedRepetitionSystem {
     const now = new Date();
     const attempts = (flashcard.attempts || 0) + 1;
     const successfulReviews = (flashcard.successfulReviews || 0) + 1;
+    const hintsUsedOverall = (flashcard.hintsUsedOverall || 0) + (flashcard.hintsUsed || 0);
     
     const performanceScore = SpacedRepetitionSystem.calculatePerformanceScore(
       flashcard.hintsUsed || 0,
@@ -73,11 +74,11 @@ class SpacedRepetitionSystem {
       ...flashcard,
       attempts,
       successfulReviews,
+      hintsUsedOverall,
       lastReviewDate: now,
       nextReviewDate,
       difficultyFactor: newDifficultyFactor,
       currentInterval: nextInterval,
-      status: 'Done',
       // Reset for next attempt
       hintsUsed: 0,
       editorContent: ''
@@ -91,7 +92,6 @@ class SpacedRepetitionSystem {
   static getCardsForReview(flashcards) {
     const now = new Date();
     return flashcards.filter(card => 
-      card.status === 'Done' && 
       card.nextReviewDate && 
       new Date(card.nextReviewDate) <= now
     );
