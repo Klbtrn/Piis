@@ -1216,7 +1216,7 @@ export default function HomePage() {
                     Duggy
                   </span>
                   <div className="space-y-3">
-                    <p className="leading-relaxed text-left text-lg font-medium">
+                    <p className="leading-relaxed text-left text-lg">
                       Hi, welcome to{" "}
                       <span className="text-fuchsia-300 font-bold">
                         DuggyBuggy
@@ -1224,15 +1224,13 @@ export default function HomePage() {
                       ! 👋
                       <br />
                       I'm Duggy, your friendly programming mentor.
-                      <br />
-                      Let me check my systems...
                     </p>
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {showTyping2 && (
+            {/* {showTyping2 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1327,7 +1325,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </motion.div>
-            )}
+            )} */}
 
             {showTyping3 && (
               <motion.div
@@ -1374,7 +1372,7 @@ export default function HomePage() {
                   </span>
                   <div className="space-y-3">
                     {renderTestApiResponse()}
-                    <div className="pt-3 border-t border-purple-800/50">
+                    <div className="pt-1 border-t border-purple-800/50">
                       <p className="text-base leading-relaxed">
                         Paste your code in the editor and click{" "}
                         <span className="text-fuchsia-300 font-semibold">
