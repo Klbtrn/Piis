@@ -1216,7 +1216,7 @@ export default function HomePage() {
                     Duggy
                   </span>
                   <div className="space-y-3">
-                    <p className="leading-relaxed text-left text-lg">
+                    <p className="leading-relaxed text-left">
                       Hi, welcome to{" "}
                       <span className="text-fuchsia-300 font-bold">
                         DuggyBuggy
