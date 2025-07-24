@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import beautify from "js-beautify";
-// Hilfsfunktion: Formatiert Code je nach Sprache
+
+// Formatting function: Formats code based on language (JS via beautify, Python via backend)
 async function formatCodeByLanguage(code, lang) {
   if (!code) return "";
   if (lang === "javascript") {
@@ -62,13 +63,10 @@ import HelperSession from "@/lib/HelperSession";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  // Automatische Spracherkennung
   const [autoLanguage, setAutoLanguage] = useState(null);
-
-  // Ref für das Chat-Panel (für automatisches Scrollen)
   const chatPanelRef = useRef(null);
 
-  // Einfache Heuristik zur Spracherkennung
+  // Simple heuristic for language detection
   function detectLanguage(code) {
     if (!code) return null;
     const pyKeywords = [
@@ -114,13 +112,9 @@ export default function HomePage() {
     if (jsScore > pyScore && jsScore > 0) return "javascript";
     return null;
   }
-  // Overlay-Fullscreen für Code-Hint/Solution Editor
   const [hintOverlayOpen, setHintOverlayOpen] = useState(false);
-  // Overlay-Fullscreen Editor
   const [editorOverlayOpen, setEditorOverlayOpen] = useState(false);
-  // Fokus-State für Editor
   const [editorFocused, setEditorFocused] = useState(false);
-  // State
   const [language, setLanguage] = useState("python");
   const [showTyping1, setShowTyping1] = useState(true);
   const [showMessage1, setShowMessage1] = useState(false);
@@ -145,15 +139,9 @@ export default function HomePage() {
   const [codeHintContent, setCodeHintContent] = useState(""); // Für den Code-Hint-Editor
   const editorRef = useRef(null);
 
-  // Modernes lila Farbschema und Glassmorphism-Styles
-  const glassBg =
-    "bg-white/10 backdrop-blur-md shadow-2xl border border-purple-400/30";
   const cardBg =
     "bg-gradient-to-br from-purple-900/80 via-purple-800/80 to-zinc-900/80";
   const accent = "from-purple-600 via-fuchsia-500 to-purple-400";
-  const borderAccent = "border border-purple-500/40";
-  const floatingBtn =
-    "fixed bottom-8 right-8 bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white p-5 rounded-full shadow-xl hover:scale-105 transition-all z-50";
 
   const makeTestApiCall = async (baseUrl) => {
     try {
@@ -307,8 +295,6 @@ export default function HomePage() {
 
   const handleReAnalysis = async () => {
     if (!helperSession) return;
-
-    // Solution-Button und Hint-Buttons sofort deaktivieren
     setHintClicked({ text: false, code: false });
     setShowHints({ text: false, code: false });
 
@@ -345,8 +331,8 @@ export default function HomePage() {
 
         setHintClicked({ text: false, code: false });
         setShowHints({ text: false, code: false });
-        setCodeHintContent(""); // Code-Hint-Editor leeren
-        setShowSolution(false); // Lösungsbutton ausblenden
+        setCodeHintContent("");
+        setShowSolution(false);
       }, 1500);
     } catch (error) {
       console.error("Re-analysis failed:", error);
@@ -359,7 +345,6 @@ export default function HomePage() {
     }
   };
 
-  // Hint-Buttons: Klick-Status merken (inkl. Solution)
   const [hintClicked, setHintClicked] = useState({
     text: false,
     code: false,
@@ -367,7 +352,7 @@ export default function HomePage() {
   });
   const handleShowHint = async (type) => {
     if (!helperSession) return;
-    if (hintClicked[type] || hintClicked.solution) return; // Doppelklick verhindern oder nach Solution-Klick
+    if (hintClicked[type] || hintClicked.solution) return;
     const hint =
       type === "text" ? helperSession.textHint : helperSession.codeHint;
     setShowHints((prev) => ({ ...prev, [type]: true }));
@@ -391,15 +376,14 @@ export default function HomePage() {
       helperSession.solution || "",
       language
     );
-    setCodeHintContent(formatted); // Editor zeigt Lösung
-    // Nach Klick: alle drei Buttons deaktivieren
+    setCodeHintContent(formatted);
     setHintClicked({ text: true, code: true, solution: true });
   };
 
-  // Hilfsfunktion zum Erstellen eines Flashcard-Objekts aus LLM-Result
+  // Helper function to build flashcard object from LLM result
   function buildFlashcardFromResult(result, language) {
     return {
-      task_name: result.task_name || "", // Use `task_name` for the main title
+      task_name: result.task_name || "",
       prompt: result.prompt || "",
       solution: result.solution || "",
       hintText: result.text_hint || "",
@@ -442,7 +426,7 @@ export default function HomePage() {
       const result = await response.json();
       const flashcard = buildFlashcardFromResult(result, language);
 
-      // Flashcard an den Server schicken
+      // Flashcard to server
       await fetch("http://localhost:5000/api/flashcards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -458,7 +442,6 @@ export default function HomePage() {
           type: "success",
         });
 
-        // Nach 2 Sekunden automatisch weiterleiten
         setTimeout(() => {
           navigate("/flashcards");
         }, 2000);
@@ -488,10 +471,8 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    // Fetch API status and available prompts
     const fetchApiStatus = async () => {
       try {
-        // Try different possible API endpoints
         const possibleUrls = [
           "http://localhost:5000/api/llm",
           "/api/llm",
@@ -585,22 +566,22 @@ export default function HomePage() {
     }
   };
 
-  const getCategoryEmoji = (category) => {
-    const emojiMap = {
-      programming: "💻",
-      "code-review": "🔍",
-      education: "📚",
-      debugging: "🐛",
-      flashcards: "🎴",
-      "project-planning": "📋",
-      "error-help": "❗",
-      "best-practices": "⭐",
-      helper: "🆘",
-      trainer: "🏋️",
-      test: "🧪",
-    };
-    return emojiMap[category] || "🔧";
-  };
+  // const getCategoryEmoji = (category) => {
+  //   const emojiMap = {
+  //     programming: "💻",
+  //     "code-review": "🔍",
+  //     education: "📚",
+  //     debugging: "🐛",
+  //     flashcards: "🎴",
+  //     "project-planning": "📋",
+  //     "error-help": "❗",
+  //     "best-practices": "⭐",
+  //     helper: "🆘",
+  //     trainer: "🏋️",
+  //     test: "🧪",
+  //   };
+  //   return emojiMap[category] || "🔧";
+  // };
 
   const renderTestApiResponse = () => {
     if (!testApiResponse) return null;
@@ -769,7 +750,7 @@ export default function HomePage() {
     );
   };
 
-  // Immer nach unten scrollen, wenn sich Nachrichten/Status ändern
+  // Automatically scroll to bottom when new messages are added
   useEffect(() => {
     if (chatPanelRef.current) {
       chatPanelRef.current.scrollTop = chatPanelRef.current.scrollHeight;
@@ -846,7 +827,7 @@ export default function HomePage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* HINT BUTTONS: Sichtbar in Helper Mode */}
+            {/* HINT BUTTONS*/}
             <div className="flex items-center gap-2 ml-4">
               <Button
                 variant="outline"
@@ -1007,7 +988,7 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Code-Hint Editor (zeigt Code-Hint oder Lösung, wenn vorhanden) */}
+          {/* Code-Hint Editor*/}
           {codeHintContent && (
             <div className="mt-4 relative">
               <label className="block mb-2 text-sm font-semibold text-fuchsia-300">
@@ -1029,7 +1010,7 @@ export default function HomePage() {
                   options={{ readOnly: true, minimap: { enabled: false } }}
                   height="180px"
                 />
-                {/* Fullscreen-Button für Code-Hint/Solution Editor */}
+                {/* Fullscreen-Button for Code-Hint/Solution Editor */}
                 <button
                   type="button"
                   title="Code-Hint/Solution Editor vergrößern"
@@ -1054,7 +1035,7 @@ export default function HomePage() {
                   </svg>
                 </button>
               </div>
-              {/* Overlay-Fullscreen für Code-Hint/Solution Editor */}
+              {/* Overlay-Fullscreen for Code-Hint/Solution Editor */}
               {hintOverlayOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-lg transition-all animate-fade-in">
                   <div className="relative w-full max-w-5xl mx-auto rounded-3xl shadow-2xl bg-gradient-to-br from-purple-900/90 via-fuchsia-900/80 to-zinc-900/90 border-2 border-fuchsia-700/40 p-0">
@@ -1098,7 +1079,7 @@ export default function HomePage() {
                         </svg>
                       </button>
                     </div>
-                    {/* Editor im Overlay */}
+                    {/* Editor Overlay */}
                     <div className="p-8">
                       <Editor
                         language={language}
@@ -1121,7 +1102,7 @@ export default function HomePage() {
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-4 mt-2">
-            {/* Nach Klick auf Lösung: Re-Analyze deaktivieren, Flashcard-Button anzeigen */}
+            {/* Re-Analyze Button and Flashcard Button */}
             {isHelperMode && showSolution ? (
               <>
                 <Button
@@ -1421,15 +1402,6 @@ export default function HomePage() {
             )}
           </div>
         </section>
-
-        {/* Floating Action Button für zukünftige Features (z.B. Chat öffnen) */}
-        {/*
-        <button className={floatingBtn} title="Chat öffnen">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
-          </svg>
-        </button>
-        */}
       </main>
     </div>
   );
