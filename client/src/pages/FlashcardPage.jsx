@@ -109,11 +109,11 @@ export default function FlashcardPage() {
     switch (sortOption) {
       case "Neueste":
         return [...cards].sort(
-          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
       case "Älteste":
         return [...cards].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
         );
       case "Hints":
         return [...cards].sort(
