@@ -64,8 +64,9 @@ export default function TrainerPage() {
   const [cardCompleted, setCardCompleted] = useState(false);
   const [hintsUsedCount, setHintsUsedCount] = useState(0);
   const [solutionUsed, setSolutionUsed] = useState(false);
-  const [buttonsDeactivated, setButtonsDeactivated] = useState({ textHint: false, codeHint: false , analyze: false, solution: false });
+  const [buttonsDeactivated, setButtonsDeactivated] = useState({ examMode: false, textHint: false, codeHint: false , analyze: false, solution: false });
   const [examMode, setExamMode] = useState(false);
+  const [showBackToFlashcard, setShowBackToFlashcard] = useState(false);
 
   // Load flashcard data
   useEffect(() => {
@@ -216,7 +217,7 @@ export default function TrainerPage() {
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedCard),
+            body: JSON.stringify(updatedCard)
           }
         );
         if (!response.ok) {
@@ -252,7 +253,7 @@ export default function TrainerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           promptId: "trainer_analyse_prompt",
-          userInput: `Please analyze this code:\n\n${editorContent}`,
+          userInput: `Please analyze this code and compare it to this solution:${flashcard?.solution}\n\ncode:\n\n${editorContent}`,
         }),
       });
 
@@ -268,13 +269,43 @@ export default function TrainerPage() {
           setDuggyMessage(`${result.clarification_request}`);
         } else {
           // setDuggyMessage(`${result.feedback_message}`);   Commented out to avoid double Message
-          if (examMode || result.mastered) {
+          if (examMode && result.mastered) {
+            flashcard.status = 'Done';
             setFlashcard((prev) => ({...prev, status: 'Done'}));
             handleCardCompletion();
-          } else if (result.mastered) {
+          } else if (!examMode && result.mastered) {
+            flashcard.status = 'InProgress';
             setFlashcard((prev) => ({...prev, status: 'InProgress'}));
             handleCardCompletion();
           } else if (!result.mastered) {
+            const updatedCard = { ...flashcard, hintsUsedOverall: (flashcard.hintsUsedOverall || 0) + hintsUsedCount, attempts: (flashcard.attempts || 0) + 1, status: 'InProgress' };
+            setFlashcard(updatedCard);
+            console.log(`updating flashcard because analyze was pressed but the given code wrong: ${updatedCard}`);
+            const updateCardStatus = async () => {
+              try {
+                // Save updated card to database
+                const response = await fetch(
+                  `http://localhost:5000/api/flashcards/${flashcard._id}`,
+                  {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatedCard)
+                  }
+                );
+                if (!response.ok) {
+                  throw new Error("Failed to update card status:" + response.statusText);
+                }
+              } catch (error) {
+                console.error("Failed to update card:", error);
+                setDuggyMessage(
+                  "Oops! I couldn't save your progress. 😖"
+                );
+              }
+            };
+            updateCardStatus();
+            setShowBackToFlashcard(true);
+            setExamMode(false);
+            setButtonsDeactivated({ ...buttonsDeactivated, examMode: true });
             setDuggyMessage(result.feedback_message || "Your code has some issues. Please review the feedback and try again!");
           }
         }
@@ -312,7 +343,7 @@ export default function TrainerPage() {
             <Button
               className="flex items-center bg-gradient-to-r from-purple-600/20 via-fuchsia-500/20 to-purple-400/20 border border-purple-500 rounded-full px-5 py-2 shadow-md hover:scale-105 hover:shadow-xl transition-all"
               onClick={() => setExamMode(true)}
-              disabled={ cardCompleted || examMode || hintsUsedCount > 0 || solutionUsed }
+              disabled={ cardCompleted || examMode || hintsUsedCount > 0 || solutionUsed || buttonsDeactivated.examMode }
             >
               { examMode ? <p>🟢</p> : <p>🔴</p> }
               <span className="text-sm font-medium text-white">Exam Mode</span>
@@ -395,7 +426,7 @@ export default function TrainerPage() {
                 </Button>
 
                 {/* Add back to flashcards button */}
-                {(cardCompleted || solutionUsed) && (
+                {(cardCompleted || solutionUsed || showBackToFlashcard) && (
                   <Button
                     className="bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all"
                     onClick={() => window.history.back()}

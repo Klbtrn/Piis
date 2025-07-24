@@ -130,7 +130,7 @@
       "name": "Trainer Code Analysis",
       "description": "Analyze user's code attempt against flashcard solution in trainer mode",
       "category": "trainer",
-      "prompt": "Analyze student's flashcard exercise attempt.\n\nREQUIREMENTS:\n- feedback_message: MAX 400 characters\n- Be educational and supportive but brief\n- Focus on learning progress, not just correctness\n\nCompare code to expected solution and provide: constructive feedback, mastery determination, correctness percentage, specific strengths, improvement areas, concrete next steps.",
+      "prompt": "Analyze student's flashcard exercise attempt.\n\nREQUIREMENTS:\n- feedback_message: MAX 400 characters\n- Be educational and supportive but brief\n- Focus on learning progress, not just correctness\n\nCompare code to expected solution and provide: constructive feedback and a boolean response if the code is counted as mastered",
       "tags": ["trainer", "flashcard-analysis", "mastery-assessment", "feedback"],
       "responseSchema": {
         "type": "Type.OBJECT",
@@ -140,31 +140,6 @@
           },
           "mastered": {
             "type": "Type.BOOLEAN"
-          },
-          "correctness_percentage": {
-            "type": "Type.INTEGER"
-          },
-          "strengths": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "areas_for_improvement": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "next_steps": {
-            "type": "Type.ARRAY",
-            "items": {
-              "type": "Type.STRING"
-            }
-          },
-          "encouragement_level": {
-            "type": "Type.STRING",
-            "enum": ["high", "medium", "gentle_push", "strong_encouragement"]
           }
         }
       }
