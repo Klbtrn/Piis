@@ -289,7 +289,7 @@ export default function HomePage() {
           setIsHelperMode(true);
 
           addHelperMessage({
-            text: `Great! I can see you're working on: ${result.problem_description}\n\nI'm ready to help you solve this step by step. You can use the hint buttons below, or keep editing your code and click "Re-Analyze" for updated guidance! 💪`,
+            text: `Great! I can see you're working on: ${result.problem_description}\n\nI'm ready to help you solve this step by step. You can use the hint buttons above, or keep editing your code and click "Re-Analyze" for updated guidance! 💪`,
             showControls: true,
           });
         }
